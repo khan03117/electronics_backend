@@ -42,7 +42,8 @@ const _get_all = async (req, res) => {
     })
 }
 const _delete = async (req, res) => {
-    const id = req.body.id;
+
+    const id = req.params.category_id;
     const fdata = { _id: id }
     await Category.deleteOne(fdata).then((response) => {
         return res.json({
