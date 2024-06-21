@@ -20,8 +20,11 @@ const modalschema = new Schema({
     },
     is_hidden: {
         type: Boolean,
-        default: true
-    }
+        default: false
+    },
+    deleted_at: {
+        type: Date
+    },
 }, { timestamps: true });
 
 module.exports = new mongoose.model('Modal', modalschema);

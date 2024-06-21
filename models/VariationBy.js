@@ -1,10 +1,12 @@
+
+
 const { Schema, default: mongoose } = require("mongoose");
 
-const variationbyschmea = new Schema({
+const variationBySchema = new Schema({
     title: {
-        type: String
+        type: String,
+        required: true
     }
+}, { timestamps: true });
 
-}, { timestamps: true })
-
-module.exports = new mongoose.model('VariationBy', variationbyschmea);
+module.exports = mongoose.model('VariationBy', variationBySchema);

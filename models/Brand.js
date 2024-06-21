@@ -17,6 +17,10 @@ const brandschema = new Schema({
     },
     image: {
         type: String
-    }
+    },
+    deleted_at: {
+        type: Date
+    },
+
 }, { timestamps: true });
 module.exports = mongoose.model('Brand', brandschema);

@@ -2,7 +2,7 @@ const { Schema, default: mongoose } = require("mongoose");
 
 const detailsSchema = {
     variationBy: {
-        type: mongoose.Schema.type.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "VariatioinBy"
     },
     variation: {
@@ -46,3 +46,6 @@ const vrientschmea = new Schema({
 
 
 module.exports = new mongoose.model('Varient', vrientschmea);
+
+
+
