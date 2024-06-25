@@ -1,11 +1,7 @@
 const { Schema, default: mongoose } = require("mongoose");
 
 
-const pdschmea = new Schema({
-    category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category"
-    },
+const modalsschema = {
     brand: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Brand"
@@ -14,12 +10,33 @@ const pdschmea = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Modal"
     },
+    moq: {
+        type: Number
+    },
+    stock: {
+        type: Number
+    }
+}
+const pdschmea = new Schema({
+    url: {
+        type: String
+    },
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category"
+    },
+
     product_type: {
         type: String
     },
     title: {
         type: String,
     },
+    price: {
+        type: Number
+    },
+    images: [String],
+    modals: [modalsschema],
     description: {
         type: String,
     },

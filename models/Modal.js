@@ -4,10 +4,6 @@ const modalschema = new Schema({
     url: {
         type: String,
     },
-    category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category"
-    },
     brand: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Brand"

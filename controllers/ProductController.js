@@ -1,12 +1,7 @@
 const { validationResult } = require('express-validator');
-const Brand = require('../models/Brand');
-const Category = require('../models/Category');
-const PdModal = require('../models/Product')
 
-
-
-
-
+const PdModal = require('../models/Product');
+const Product = require('../models/Product');
 
 exports.createproduct = async (req, res) => {
     try {
@@ -19,7 +14,21 @@ exports.createproduct = async (req, res) => {
                 data: []
             });
         }
-        const newproduct = new PdModal(req.body);
+        const files = req.files;
+        const imagePaths = files.map(file => file.path);
+        const { title, description, price, product_type, category, modals } = req.body;
+        const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+        const modalsArray = JSON.parse(modals);
+        const newproduct = new PdModal({
+            url,
+            title,
+            description,
+            price,
+            product_type,
+            category,
+            images: imagePaths,
+            modals: modalsArray
+        });
         const savedproduct = await newproduct.save();
         res.status(201).json({
             success: 1,
@@ -36,6 +45,24 @@ exports.createproduct = async (req, res) => {
         });
     }
 };
+exports.get_product_by_id = async (req, res) => {
+    const id = req.params.id;
+    const response = await PdModal.findOne({ _id: id, deleted_at: null })
+        .populate('modals.brand') // Populate the 'brand' field in 'modals'
+        .populate('modals.modal');
+
+    return res.json({
+        success: 1,
+        error: [],
+        data: response,
+        message: "Product fetched successfully."
+    })
+
+}
+
+
+
+
 
 
 exports.getallproduct = async (req, res) => {
@@ -49,6 +76,60 @@ exports.getallproduct = async (req, res) => {
         })
     })
 }
+
+exports.get_products = async (req, res) => {
+
+    try {
+        const results = await PdModal.aggregate([
+            {
+                $lookup: {
+                    from: 'categories', // Name of the category collection
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'categoryDetails'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$categoryDetails',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $group: {
+                    _id: '$categoryDetails._id',
+                    categoryTitle: { $first: '$categoryDetails.title' },
+
+                    products: { $push: '$$ROOT' }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    category: {
+                        _id: '$_id',
+                        title: '$categoryTitle',
+
+                        products: '$products'
+                    }
+                }
+            },
+            {
+                $sort: { 'category.title': 1 } // Sort by category title
+            }
+        ]);
+        return res.json({
+            success: 1,
+            error: [],
+            data: results,
+            message: "Product fetched successfully."
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
 
 
 exports.updateproduct = async (req, res) => {

@@ -8,7 +8,6 @@ router.delete('/delete/:brand_id', brand_delete)
 router.get('/', brandgetall)
 router.put('/', store.single('image'), brand_update)
 router.get('/:id', get_brandby_Category)
-
 module.exports = router;
 
 

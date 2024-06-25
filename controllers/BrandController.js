@@ -1,5 +1,5 @@
 const Brand = require('../models/Brand');
-const Category = require('../models/Category');
+// const Category = require('../models/Category');
 
 
 exports.brand_create = async (req, res) => {
@@ -14,20 +14,20 @@ exports.brand_create = async (req, res) => {
             message: "Create new Brand failed"
         })
     }
-    const cid = req.body.category;
-    const isvalid = await Category.findOne({ _id: cid });
-    if (!isvalid) {
-        return res.json({
-            success: 0,
-            error: [{ path: "category", msg: "category id does not exits" }],
-            data: [],
-            message: "Create new Brand failed"
-        })
-    }
+    // const cid = req.body.category;
+    // const isvalid = await Category.findOne({ _id: cid });
+    // if (!isvalid) {
+    //     return res.json({
+    //         success: 0,
+    //         error: [{ path: "category", msg: "category id does not exits" }],
+    //         data: [],
+    //         message: "Create new Brand failed"
+    //     })
+    // }
     let data = {
         title: title,
         url: url,
-        category: cid
+        // category: cid
     }
     if (req.file) {
         data['image'] = req.file.path

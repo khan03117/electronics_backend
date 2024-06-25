@@ -1,15 +1,17 @@
-const modal = require('../models/Modal')
-const category = require('../models/Category')
-const brand = require('../models/Brand')
+
+const Brand = require('../models/Brand');
+const ModalDB = require('../models/Modal')
+
+
 
 
 
 
 exports.create_modal = async (req, res) => {
     const title = req.body.title;
-    console.log(req.body)
+
     const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-    const isExists = await modal.findOne({ url: url });
+    const isExists = await ModalDB.findOne({ url: url });
     if (isExists) {
         return res.json({
             success: 0,
@@ -18,18 +20,9 @@ exports.create_modal = async (req, res) => {
             message: "Create new modal failed"
         })
     }
-    const cid = req.body.category;
-    const isvalid = await category.findOne({ _id: cid });
-    if (!isvalid) {
-        return res.json({
-            success: 0,
-            error: [{ path: "modal", msg: "modal id does not exits" }],
-            data: [],
-            message: "Create new modal failed"
-        })
-    }
+
     const bid = req.body.brand;
-    const bidvalid = await brand.findOne({ _id: bid });
+    const bidvalid = await Brand.findOne({ _id: bid });
     if (!bidvalid) {
         return res.json({
             success: 0,
@@ -41,13 +34,11 @@ exports.create_modal = async (req, res) => {
     let data = {
         title: title,
         url: url,
-        category: cid,
+
         brand: bid
     }
-    if (req.file) {
-        data['image'] = req.file.path
-    }
-    await modal.create(data).then((response) => {
+
+    await ModalDB.create(data).then((response) => {
         return res.json({
             success: 1,
             error: [],
@@ -61,18 +52,57 @@ exports.create_modal = async (req, res) => {
 
 
 exports.modalgetall = async (req, res) => {
+    const title = req.query.title;
+    const matchStage = title ? { $match: { title: { $regex: title, $options: 'i' } } } : { $match: {} };
+    const results = await ModalDB.aggregate([
+        matchStage,
+        {
+            $group: {
+                _id: "$brand",
+                modals: { $push: "$$ROOT" }
+            }
+        },
 
-    let fdata = {
-        is_hidden: false
-    }
-
-    await modal.find({}).then((response) => {
-        return res.json({
-            success: 1,
-            error: [],
-            data: response,
-            message: "Modal fetched successfully."
-        })
+        {
+            $lookup: {
+                from: 'brands',
+                localField: "_id",
+                foreignField: '_id',
+                as: 'brand',
+            }
+        },
+        {
+            $unwind: {
+                path: '$brand',
+                preserveNullAndEmptyArrays: true, // To handle modals without a brand
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                modals: 1,
+                brand: {
+                    $mergeObjects: [
+                        { modals: '$modals' },
+                        '$brand'
+                    ]
+                }
+            }
+        },
+        {
+            $replaceRoot: {
+                newRoot: '$brand'
+            }
+        },
+        {
+            $sort: { 'title': 1 }
+        }
+    ])
+    return res.json({
+        success: 1,
+        error: [],
+        data: results,
+        message: "Fetch list of modals"
     })
 }
 
@@ -82,7 +112,7 @@ exports.modal_delete = async (req, res) => {
     const id = await req.params.id;
 
     const fdata = { _id: id }
-    await modal.deleteOne(fdata).then((response) => {
+    await ModalDB.deleteOne(fdata).then((response) => {
         return res.json({
             success: 1,
             error: [],
@@ -107,7 +137,7 @@ exports.modal_update = async (req, res) => {
         }
 
         const title = req.body.title;
-        const category = req.body.category;
+
         const brand = req.body.brand;
 
         if (!title) {
@@ -120,7 +150,7 @@ exports.modal_update = async (req, res) => {
         }
 
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-        const isExists = await modal.findOne({ url: url, _id: { $ne: id } });
+        const isExists = await ModalDB.findOne({ url: url, _id: { $ne: id } });
         if (isExists) {
             return res.status(400).json({
                 success: 0,
@@ -133,7 +163,6 @@ exports.modal_update = async (req, res) => {
         let data = {
             title: title,
             url: url,
-            category: category,
             brand: brand
         };
 
@@ -142,7 +171,7 @@ exports.modal_update = async (req, res) => {
         }
 
         const fdata = { _id: id };
-        const response = await modal.updateOne(fdata, data);
+        const response = await ModalDB.updateOne(fdata, data);
         if (response.nModified === 0) {
             return res.status(404).json({
                 success: 0,
@@ -182,7 +211,7 @@ exports.getmodal_bybrand = async (req, res) => {
                 message: "Brand ID is missing."
             });
         }
-        const response = await modal.find({ brand: id, is_hidden: false });
+        const response = await ModalDB.find({ brand: id, is_hidden: false });
         return res.json({
             success: 1,
             error: [],
