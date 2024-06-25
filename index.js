@@ -16,6 +16,7 @@ const modalroutes = require('./routes/ModalRoutes');
 const variantby = require('./routes/VariantByRoutes');
 const product = require('./routes/ProductRoutes');
 const variant = require('./routes/VariantRoutes');
+const cartRoutes = require('./routes/CartRoutes');
 
 
 const mongoose = require('mongoose');
@@ -38,6 +39,7 @@ app.use('/api/v1/modal', modalroutes);
 app.use('/api/v1/variantby', variantby);
 app.use('/api/v1/product', product);
 app.use('/api/v1/variant', variant);
+app.use('/api/v1/cart', cartRoutes);
 
 
 
