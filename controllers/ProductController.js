@@ -18,14 +18,15 @@ exports.createproduct = async (req, res) => {
         const imagePaths = files.map(file => file.path);
         const { title, description, price, product_type, category, modals } = req.body;
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+
         const modalsArray = JSON.parse(modals);
         const newproduct = new PdModal({
-            url,
-            title,
-            description,
-            price,
-            product_type,
-            category,
+            url: url,
+            title: title,
+            description: description,
+            price: price,
+            product_type: product_type,
+            category: category,
             images: imagePaths,
             modals: modalsArray
         });
