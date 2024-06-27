@@ -1,14 +1,13 @@
 const Banner = require("../models/Banner");
 
 const _create = async (req, res) => {
-    const type = req.body.type ?? 'Banner';
-    const data = { type: type };
+    const data = { ...req.body };
     if (req.file) {
         data['image'] = req.file.path
         const banner = await Banner.create(data);
         return res.json({
             errors: [],
-            success: 0,
+            success: 1,
             message: "Banner created successfully",
             data: banner
         });
@@ -33,7 +32,7 @@ const delete_banner = async (req, res) => {
 }
 const update_banner = async (req, res) => {
     const { id } = req.params;
-    const data = {};
+    const data = { ...req.body };
     if (req.file) {
         data['image'] = req.file.path
     } else {

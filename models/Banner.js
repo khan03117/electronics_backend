@@ -9,6 +9,12 @@ const bannerSchema = new Schema({
     type: {
         type: String,
         default: 'Banner'
+    },
+    heading: {
+        type: String
+    },
+    text: {
+        type: String
     }
 
 }, { timestamps: true });

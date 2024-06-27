@@ -19,6 +19,7 @@ const variant = require('./routes/VariantRoutes');
 const cartRoutes = require('./routes/CartRoutes');
 const userRoutes = require('./routes/UserRoutes');
 const bannerRoutes = require('./routes/BannerRoutes');
+const asksRoutes = require('./routes/TestimonialRoutes');
 
 
 const mongoose = require('mongoose');
@@ -44,6 +45,7 @@ app.use('/api/v1/variant', variant);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/banner', bannerRoutes);
+app.use('/api/v1/testimonial', asksRoutes);
 
 
 
