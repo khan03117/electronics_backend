@@ -19,6 +19,15 @@ exports.createproduct = async (req, res) => {
         const { title, description, price, product_type, category, modals } = req.body;
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
 
+        const isExists = await Product.findOne({ url: url });
+        if (isExists) {
+            return res.json({
+                success: 0,
+                error: [{ path: "title", msg: "Already exits" }],
+                data: [],
+                message: "Product already exists"
+            })
+        }
         const modalsArray = JSON.parse(modals);
         const newproduct = new PdModal({
             url: url,
