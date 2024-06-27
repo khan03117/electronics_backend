@@ -18,10 +18,7 @@ const getAll = async (req, res) => {
 }
 
 const destroy = async (req, res) => {
-    if (!req.body.id) {
-        return res.json({ data: [], errors: errors, success: 0, message: "Invalid faq id" });
-    }
-    const _id = req.body.id;
+    const { _id } = req.params;
     await FaqModel.deleteOne({ _id: _id }).then((resp) => {
         return res.json({ data: [], errors: [], success: 1, message: " Faq deleted successfully." });
     })
@@ -31,7 +28,9 @@ const updatefaq = async (req, res) => {
     if (!errors.isEmpty()) {
         return res.json({ errors: errors.array(), success: 0 });
     }
-    const { faq_id, question, answer } = req.body;
+    const { _id } = req.params;
+    const faq_id = _id;
+    const { question, answer } = req.body;
     const faq = await FaqModel.findOne({ _id: faq_id });
     if (faq) {
         faq.question = question;
