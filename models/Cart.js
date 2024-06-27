@@ -1,6 +1,4 @@
 const { Schema, default: mongoose } = require("mongoose");
-
-
 const cartSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -23,6 +21,14 @@ const cartSchema = new Schema({
     },
     quantity: {
         type: Number
+    },
+    is_ordered: {
+        type: Boolean,
+        default: false
+    },
+    order: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order'
     }
 }, { timestamps: true });
 module.exports = new mongoose.model('Cart', cartSchema);

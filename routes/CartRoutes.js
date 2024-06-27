@@ -4,6 +4,8 @@ const controller = require('../controllers/CartController');
 const { Auth } = require('../middleware/Auth');
 
 router.post('/', Auth, controller._create);
+router.post('/checkout', Auth, controller.checkout);
+router.get('/orders', Auth, controller.myorders);
 router.get('/', Auth, controller.mycarts);
 
 
