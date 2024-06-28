@@ -2,6 +2,10 @@ const { validationResult } = require('express-validator');
 
 const PdModal = require('../models/Product');
 const Product = require('../models/Product');
+const Category = require('../models/Category');
+const Modal = require('../models/Modal');
+const Brand = require('../models/Brand');
+
 
 exports.createproduct = async (req, res) => {
     try {
@@ -90,7 +94,30 @@ exports.getallproduct = async (req, res) => {
 exports.get_products = async (req, res) => {
 
     try {
+        const { category_url, modal_url, brand_url } = req.query;
+
+        const category = await Category.findOne({ url: category_url });
+        const modal = await Modal.findOne({ url: modal_url });
+        const brand = await Brand.findOne({ url: brand_url });
+        let match = {
+            deleted_at: null,
+            is_hidden: false,
+        }
+
+        if (category) {
+            match.category = category._id;
+        }
+        if (modal) {
+            match.modal = modal._id;
+        }
+        if (brand) {
+            match.brand = brand._id;
+        }
+
+
+        const matchStage = { $match: match };
         const results = await PdModal.aggregate([
+            matchStage,
             {
                 $lookup: {
                     from: 'categories', // Name of the category collection
@@ -198,4 +225,6 @@ exports.deleteproduct = async (req, res) => {
         })
     })
 }
+
+
 
