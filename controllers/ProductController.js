@@ -107,12 +107,12 @@ exports.get_products = async (req, res) => {
         if (category) {
             match.category = category._id;
         }
-        if (modal) {
-            match.modal = modal._id;
-        }
-        if (brand) {
-            match.brand = brand._id;
-        }
+        // if (modal) {
+        //     match.modal = modal._id;
+        // }
+        // if (brand) {
+        //     match.brand = brand._id;
+        // }
 
 
         const matchStage = { $match: match };
@@ -124,6 +124,12 @@ exports.get_products = async (req, res) => {
                     localField: 'category',
                     foreignField: '_id',
                     as: 'categoryDetails'
+                }
+            },
+            {
+                $match: {
+                    ...(modal ? { "modals.modal": modal._id } : {}),
+                    ...(brand ? { "modals.brand": brand._id } : {})
                 }
             },
             {
@@ -170,48 +176,42 @@ exports.get_products = async (req, res) => {
 
 
 exports.updateproduct = async (req, res) => {
-    const { id, ...updatedData } = req.body;
+    const { id } = req.params;
+    const data = { ...req.body };
+    const files = req.files;
+    const title = req.body;
+    const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
 
+    const isExists = await Product.findOne({ url: url });
 
-    if (!id) {
-        return res.status(400).json({
+    if (isExists) {
+        return res.json({
             success: 0,
-            error: [{ path: "id", msg: "Id is not provided" }],
+            error: [{ path: "title", msg: "Already exits" }],
             data: [],
-            message: "Proudct update failed"
-        });
+            message: "Product already exists"
+        })
     }
+    const product = await Product.findOne({ _id: id });
 
-    try {
-        const updateproduct = await PdModal.findByIdAndUpdate(id, updatedData, { new: true });
-
-        if (!updateproduct) {
-            return res.status(201).json({
-                success: 1,
-                error: [],
-                data: savedproduct,
-                message: "Product Updated successfully."
-            });
-        }
-
+    if (files) {
+        const imagePaths = files.map(file => file.path);
+        const images = product.images;
+        imagePaths.forEach(img => {
+            images.push(img);
+        })
+    }
+};
+exports.recommended_products = async (req, res) => {
+    await PdModal.find({ deleted_at: null }).limit(10).then((response) => {
         return res.json({
             success: 1,
             error: [],
-            data: updatedData,
-            message: "Product Updated successfully."
+            data: response,
+            message: "Product fetched successfully."
         })
-    } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            success: 0,
-            error: [err.message],
-            data: [],
-            message: "An error occurred while Update the Product"
-        });
-    }
-};
-
+    })
+}
 
 exports.deleteproduct = async (req, res) => {
     const id = await req.params.id;

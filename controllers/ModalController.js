@@ -52,8 +52,21 @@ exports.create_modal = async (req, res) => {
 
 
 exports.modalgetall = async (req, res) => {
-    const title = req.query.title;
-    const matchStage = title ? { $match: { title: { $regex: title, $options: 'i' } } } : { $match: {} };
+    // const title = req.query.title;
+    const { title, brand } = req.query;
+    const fdata = {
+        deleted_at: null
+    }
+    if (title) {
+        fdata['title'] = { $regex: title, $options: 'i' }
+    }
+    if (brand) {
+        const mbrand = await Brand.findOne({ url: brand });
+        if (mbrand) {
+            fdata['brand'] = mbrand._id
+        }
+    }
+    const matchStage = { $match: fdata };
     const results = await ModalDB.aggregate([
         matchStage,
         {
@@ -108,9 +121,7 @@ exports.modalgetall = async (req, res) => {
 
 
 exports.modal_delete = async (req, res) => {
-
     const id = await req.params.id;
-
     const fdata = { _id: id }
     await ModalDB.deleteOne(fdata).then((response) => {
         return res.json({
