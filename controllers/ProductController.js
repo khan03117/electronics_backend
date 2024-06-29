@@ -80,7 +80,7 @@ exports.get_product_by_id = async (req, res) => {
 
 
 exports.getallproduct = async (req, res) => {
-    await PdModal.find({ deleted_at: null }).then((response) => {
+    await PdModal.find({ deleted_at: null }).populate('category').then((response) => {
         return res.json({
             success: 1,
             error: [],

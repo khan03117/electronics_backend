@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const ContactMedia = require("../models/ContactMedia");
 const Admin = require("../models/Admin");
+const jwt = require('jsonwebtoken')
 
 const update_contact_media = async (req, res) => {
     const errors = validationResult(req);
@@ -38,6 +39,10 @@ const update_contact_media = async (req, res) => {
 
 }
 const get_contact_media = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors: errors.array(), is_success: 0 });
+    }
     //await Admin.create({ name: "Admin", 'email': "admin@login.com", 'mobile': "9090909090", "password": "ZX_$P@ssw0rd!2024" })
     const filter = {
         show_in_app: true
@@ -56,13 +61,17 @@ const get_contact_media = async (req, res) => {
     })
 }
 const login = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors: errors.array(), success: 0, message: errors.array()[0].msg });
+    }
     const data = {
         email: req.body.email,
         password: req.body.password
     }
     const isExists = await Admin.findOne(data);
     if (isExists) {
-        const token = jwt.sign({ admin_id: isExists._id }, process.env.JWT_KEY, { expiresIn: "30 days" });
+        const token = jwt.sign({ admin_id: isExists._id }, process.env.SECRET_KEY, { expiresIn: "30 days" });
 
         return res.json({
             data: token,
@@ -75,7 +84,7 @@ const login = async (req, res) => {
         return res.json({
             data: '',
             errors: [],
-            success: 1,
+            success: 0,
             message: "Invalid username & password"
         })
     }
