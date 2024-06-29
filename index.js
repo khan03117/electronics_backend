@@ -21,7 +21,7 @@ const userRoutes = require('./routes/UserRoutes');
 const bannerRoutes = require('./routes/BannerRoutes');
 const asksRoutes = require('./routes/TestimonialRoutes');
 const adminRoutes = require('./routes/AdminRoutes');
-
+const policyroutes = require('./routes/PolicyRoutes');
 
 const mongoose = require('mongoose');
 const mongoURI = process.env.MONGODB_URI;
@@ -48,7 +48,7 @@ app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/banner', bannerRoutes);
 app.use('/api/v1/testimonial', asksRoutes);
 app.use('/api/v1/social', adminRoutes);
-
+app.use('/api/v1/policy', policyroutes)
 
 
 app.use('/uploads', express.static('uploads'));
