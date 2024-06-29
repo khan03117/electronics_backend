@@ -1,7 +1,12 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-
+const https = require('https');
+const fs = require('fs');
+const options = {
+    key: fs.readFileSync('./ssl/private.key'),
+    cert: fs.readFileSync('./ssl/certificate.crt'),
+};
 
 app.use(cors());
 app.use(express.json());
@@ -57,4 +62,7 @@ app.get('/', (req, res) => {
     res.send('hello from simple server :)');
 });
 
-app.listen(port, () => console.log('> Server is up and running on port : ' + port));
+https.createServer(options, app).listen(port, () => {
+    console.log(`Server running at https://localhost:${port}`);
+});
+
