@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
 const ContactMedia = require("../models/ContactMedia");
+const Admin = require("../models/Admin");
 
 const update_contact_media = async (req, res) => {
     const errors = validationResult(req);
@@ -22,7 +23,7 @@ const update_contact_media = async (req, res) => {
                 message: "Media Udpated."
             })
         })
-    }else{
+    } else {
         await ContactMedia.create(data).then((resp) => {
             return res.json({
                 data: resp,
@@ -33,10 +34,11 @@ const update_contact_media = async (req, res) => {
         })
     }
 
-  
+
 
 }
 const get_contact_media = async (req, res) => {
+    //await Admin.create({ name: "Admin", 'email': "admin@login.com", 'mobile': "9090909090", "password": "ZX_$P@ssw0rd!2024" })
     const filter = {
         show_in_app: true
     };
@@ -53,8 +55,34 @@ const get_contact_media = async (req, res) => {
         message: "Media fetched successfully."
     })
 }
+const login = async (req, res) => {
+    const data = {
+        email: req.body.email,
+        password: req.body.password
+    }
+    const isExists = await Admin.findOne(data);
+    if (isExists) {
+        const token = jwt.sign({ admin_id: isExists._id }, process.env.JWT_KEY, { expiresIn: "30 days" });
+
+        return res.json({
+            data: token,
+            errors: [],
+            success: 1,
+            message: "Login successfully."
+        })
+    }
+    if (!isExists) {
+        return res.json({
+            data: '',
+            errors: [],
+            success: 1,
+            message: "Invalid username & password"
+        })
+    }
+
+}
 
 
 module.exports = {
-    update_contact_media, get_contact_media
+    update_contact_media, get_contact_media, login
 }
