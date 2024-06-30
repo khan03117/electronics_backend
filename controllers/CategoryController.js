@@ -55,7 +55,7 @@ const _delete = async (req, res) => {
     })
 }
 const _update = async (req, res) => {
-    const id = req.body.id;
+    const {id} = req.params;
     const title = req.body.title;
     const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
     const isExists = await Category.findOne({ url: url, _id: { $ne: id } });
@@ -85,7 +85,7 @@ const _update = async (req, res) => {
     })
 }
 module.exports = {
-    _create, _get_all, _delete
+    _create, _get_all, _delete, _update
 }
 
 
