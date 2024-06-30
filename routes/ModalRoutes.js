@@ -8,7 +8,7 @@ const router = express.Router()
 router.post('/', create_modal)
 router.get('/', modalgetall)
 router.delete('/delete/:id', modal_delete)
-router.put('/', store.single('image'), modal_update)
+router.put('/:id', store.single('image'), modal_update)
 router.get('/:id', getmodal_bybrand);
 
 

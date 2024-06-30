@@ -137,15 +137,8 @@ exports.modal_delete = async (req, res) => {
 
 exports.modal_update = async (req, res) => {
     try {
-        const id = req.body;
-        if (!id) {
-            return res.status(400).json({
-                success: 0,
-                error: [{ path: "id", msg: "Id is not provided" }],
-                data: [],
-                message: "Modal update failed"
-            });
-        }
+        const {id} = req.params;
+       
 
         const title = req.body.title;
 

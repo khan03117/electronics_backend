@@ -80,7 +80,7 @@ exports.brand_delete = async (req, res) => {
 
 exports.brand_update = async (req, res) => {
     try {
-        const id = req.body;
+        const {id} = req.params;
         if (!id) {
             return res.status(400).json({
                 success: 0,
@@ -91,15 +91,7 @@ exports.brand_update = async (req, res) => {
         }
 
         const title = req.body.title;
-        const category = req.body.category;
-        if (!title) {
-            return res.status(400).json({
-                success: 0,
-                error: [{ path: "title", msg: "Title is required" }],
-                data: [],
-                message: "Brand update failed"
-            });
-        }
+      
 
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
         const isExists = await Brand.findOne({ url: url, _id: { $ne: id } });
@@ -115,7 +107,7 @@ exports.brand_update = async (req, res) => {
         let data = {
             title: title,
             url: url,
-            category: category
+           
         };
 
         if (req.file) {
@@ -124,15 +116,6 @@ exports.brand_update = async (req, res) => {
 
         const fdata = { _id: id };
         const response = await Brand.updateOne(fdata, data);
-        if (response.nModified === 0) {
-            return res.status(404).json({
-                success: 0,
-                error: [{ path: "id", msg: "Brand not found" }],
-                data: [],
-                message: "Brand update failed"
-            });
-        }
-
         return res.json({
             success: 1,
             error: [],
