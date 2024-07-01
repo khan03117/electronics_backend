@@ -35,7 +35,7 @@ router.post('/', store.array('images', 6), createproduct);
 router.get('/shop', get_products);
 router.get('/single-product/:id', get_product_by_id);
 router.get('/', getallproduct)
-router.put('/', updateproduct)
+router.put('/:id', store.array('images', 6), updateproduct)
 router.delete('/delete/:id', deleteproduct);
 router.get('/recommended', recommended_products);
 

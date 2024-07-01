@@ -1,12 +1,9 @@
 const { validationResult } = require('express-validator');
-
 const PdModal = require('../models/Product');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Modal = require('../models/Modal');
 const Brand = require('../models/Brand');
-
-
 exports.createproduct = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -61,24 +58,14 @@ exports.createproduct = async (req, res) => {
 };
 exports.get_product_by_id = async (req, res) => {
     const id = req.params.id;
-    const response = await PdModal.findOne({ _id: id, deleted_at: null })
-        .populate('modals.brand') // Populate the 'brand' field in 'modals'
-        .populate('modals.modal');
-
+    const response = await PdModal.findOne({ _id: id, deleted_at: null }).populate('category')
     return res.json({
         success: 1,
         error: [],
         data: response,
         message: "Product fetched successfully."
     })
-
 }
-
-
-
-
-
-
 exports.getallproduct = async (req, res) => {
     await PdModal.find({ deleted_at: null }).populate('category').then((response) => {
         return res.json({
@@ -89,12 +76,9 @@ exports.getallproduct = async (req, res) => {
         })
     })
 }
-
 exports.get_products = async (req, res) => {
-
     try {
         const { category_url, modal_url, brand_url } = req.query;
-
         const category = await Category.findOne({ url: category_url });
         const modal = await Modal.findOne({ url: modal_url });
         const brand = await Brand.findOne({ url: brand_url });
@@ -102,7 +86,6 @@ exports.get_products = async (req, res) => {
             deleted_at: null,
             is_hidden: false,
         }
-
         if (category) {
             match.category = category._id;
         }
@@ -112,8 +95,6 @@ exports.get_products = async (req, res) => {
         // if (brand) {
         //     match.brand = brand._id;
         // }
-
-
         const matchStage = { $match: match };
         const results = await PdModal.aggregate([
             matchStage,
@@ -175,31 +156,54 @@ exports.get_products = async (req, res) => {
 
 
 exports.updateproduct = async (req, res) => {
-    const { id } = req.params;
-    const data = { ...req.body };
-    const files = req.files;
-    const title = req.body;
-    const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-
-    const isExists = await Product.findOne({ url: url });
-
-    if (isExists) {
+    try {
+        const { id } = req.params;
+        const { title, description, price, product_type, category, modals } = req.body;
+        const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+        const files = req.files;
+        const isExists = await Product.findOne({ url: url, _id : {$ne : id} });
+        if (isExists) {
+            return res.json({
+                success: 0,
+                error: [{ path: "title", msg: "Already exits" }],
+                data: [],
+                message: "Product already exists"
+            })
+        }
+        const product = await Product.findOne({ _id: id });
+        if (files) {
+            const imagePaths = files.map(file => file.path);
+            const images = product.images;
+            imagePaths.forEach(img => {
+                images.push(img);
+            });
+            product.images = images;
+        }
+        product.url = url;
+        product.title = title;
+        product.description = description;
+        product.price = price;
+        product.product_type = product_type;
+        product.category = category;
+        product.modals =  JSON.parse(modals);;
+        await product.save();
         return res.json({
-            success: 0,
-            error: [{ path: "title", msg: "Already exits" }],
+            success: 1,
+            error: [],
+            data: product,
+            message: "Product updated successfully."
+        })
+    } catch (error) {
+        console.log(error)
+        return res.json({
+            success: 1,
+            error: error,
             data: [],
-            message: "Product already exists"
+            message: "error"
         })
     }
-    const product = await Product.findOne({ _id: id });
 
-    if (files) {
-        const imagePaths = files.map(file => file.path);
-        const images = product.images;
-        imagePaths.forEach(img => {
-            images.push(img);
-        })
-    }
+
 };
 exports.recommended_products = async (req, res) => {
     await PdModal.find({ deleted_at: null }).limit(10).then((response) => {

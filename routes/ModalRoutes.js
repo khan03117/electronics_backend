@@ -9,7 +9,7 @@ router.post('/', create_modal)
 router.get('/', modalgetall)
 router.delete('/delete/:id', modal_delete)
 router.put('/:id', store.single('image'), modal_update)
-router.get('/:id', getmodal_bybrand);
+router.get('/brand/:id', getmodal_bybrand);
 
 
 
