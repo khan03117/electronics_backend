@@ -66,6 +66,17 @@ exports.get_product_by_id = async (req, res) => {
         message: "Product fetched successfully."
     })
 }
+exports.get_product_by_url = async (req, res) => {
+    const url = req.params.url;
+    const response = await PdModal.findOne({ url: url, deleted_at: null })
+    .populate('category').populate('modals.modal').populate('modals.brand')
+    return res.json({
+        success: 1,
+        error: [],
+        data: response,
+        message: "Product fetched successfully."
+    })
+}
 exports.getallproduct = async (req, res) => {
     await PdModal.find({ deleted_at: null }).populate('category').then((response) => {
         return res.json({
@@ -161,7 +172,7 @@ exports.updateproduct = async (req, res) => {
         const { title, description, price, product_type, category, modals } = req.body;
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
         const files = req.files;
-        const isExists = await Product.findOne({ url: url, _id : {$ne : id} });
+        const isExists = await Product.findOne({ url: url, _id: { $ne: id } });
         if (isExists) {
             return res.json({
                 success: 0,
@@ -185,7 +196,7 @@ exports.updateproduct = async (req, res) => {
         product.price = price;
         product.product_type = product_type;
         product.category = category;
-        product.modals =  JSON.parse(modals);;
+        product.modals = JSON.parse(modals);;
         await product.save();
         return res.json({
             success: 1,

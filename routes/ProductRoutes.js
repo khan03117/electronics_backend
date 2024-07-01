@@ -1,7 +1,7 @@
 
 
 const express = require('express')
-const { createproduct, getallproduct, updateproduct, deleteproduct, get_products, get_product_by_id, recommended_products } = require('../controllers/ProductController')
+const { createproduct, getallproduct, updateproduct, deleteproduct, get_products, get_product_by_id, recommended_products, get_product_by_url } = require('../controllers/ProductController')
 const { body } = require('express-validator')
 const Category = require('../models/Category')
 const Brand = require('../models/Brand')
@@ -34,6 +34,7 @@ const validation = [
 router.post('/', store.array('images', 6), createproduct);
 router.get('/shop', get_products);
 router.get('/single-product/:id', get_product_by_id);
+router.get('/show/:url', get_product_by_url);
 router.get('/', getallproduct)
 router.put('/:id', store.array('images', 6), updateproduct)
 router.delete('/delete/:id', deleteproduct);
