@@ -13,15 +13,15 @@ const _create = async (req, res) => {
     //     });
     // }
 
-    const { product, price, quantity, brand, modal } = req.body;
-    const isExists = await Cart.findOne({ brand: brand, modal: modal, user: req.user });
+    const { price, quantity, brand, modal } = req.body;
+    const isExists = await Cart.findOne({ brand: brand, modal: modal, user: req.user, is_ordered: false });
     if (isExists) {
         const udata = {
             price: price,
             quantity: quantity
         }
         if (quantity == 0) {
-            await Cart.deleteOne({ _id: isExists._id }).then(resp => {
+            await Cart.deleteOne({ _id: isExists._id, is_ordered: false }).then(resp => {
                 return res.json({
                     errors: [],
                     success: 1,
@@ -31,11 +31,11 @@ const _create = async (req, res) => {
             })
         }
         if (quantity != 0) {
-            await Cart.updateOne({ _id: isExists._id }, udata).then(resp => {
+            await Cart.updateOne({ _id: isExists._id, is_ordered: false }, udata).then(resp => {
                 return res.json({
                     errors: [],
                     success: 1,
-                    message: "Cart entry created successfully",
+                    message: "Cart entry updated successfully",
                     data: resp
                 });
             })
@@ -66,7 +66,7 @@ const get_all = async (req, res) => {
     });
 }
 const mycarts = async (req, res) => {
-    const items = await Cart.find({ user: req.user, is_ordered: false }).populate('product', 'title images').populate('modal', 'title image').populate('brand', 'title image');
+    const items = await Cart.find({ user: req.user, is_ordered: false }).populate('product', 'title images url').populate('modal', 'title image').populate('brand', 'title image');
     return res.json({
         errors: [],
         success: 1,
@@ -76,7 +76,7 @@ const mycarts = async (req, res) => {
 }
 const delete_cart = async (req, res) => {
     const { id } = req.params;
-    await Cart.deleteOne({ _id: id }).then(resp => {
+    await Cart.deleteOne({ _id: id, is_ordered: false }).then(resp => {
         return res.json({
             errors: [],
             success: 1,
@@ -130,7 +130,7 @@ const checkout = async (req, res) => {
 }
 const myorders = async (req, res) => {
     const user = req.user;
-    const orders = await Cart.find({ user: user, is_ordered : true }).populate('product', 'title images').populate('modal', 'title image').populate('brand', 'title image');
+    const orders = await Cart.find({ user: user, is_ordered: true }).populate('product', 'title images url').populate('modal', 'title image').populate('brand', 'title image').sort({ createdAt: -1 });
     return res.json({
         errors: [],
         success: 1,
