@@ -28,6 +28,8 @@ const asksRoutes = require('./routes/TestimonialRoutes');
 const adminRoutes = require('./routes/AdminRoutes');
 const policyroutes = require('./routes/PolicyRoutes');
 const promocoderoutes = require('./routes/PromoRoutes');
+const subcategoryroutes = require('./routes/SubcategoryRoutes');
+
 
 const mongoose = require('mongoose');
 const mongoURI = process.env.MONGODB_URI;
@@ -56,6 +58,8 @@ app.use('/api/v1/testimonial', asksRoutes);
 app.use('/api/v1/social', adminRoutes);
 app.use('/api/v1/policy', policyroutes)
 app.use('/api/v1/promocode', promocoderoutes)
+app.use('/api/v1/subcategory', subcategoryroutes)
+
 
 
 

@@ -69,7 +69,7 @@ exports.get_product_by_id = async (req, res) => {
 exports.get_product_by_url = async (req, res) => {
     const url = req.params.url;
     const response = await PdModal.findOne({ url: url, deleted_at: null })
-    .populate('category').populate('modals.modal').populate('modals.brand')
+        .populate('category').populate('modals.modal').populate('modals.brand')
     return res.json({
         success: 1,
         error: [],
@@ -169,7 +169,7 @@ exports.get_products = async (req, res) => {
 exports.updateproduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, price, product_type, category, modals } = req.body;
+        const { title, description, price, product_type, category, modals, subcategory } = req.body;
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
         const files = req.files;
         const isExists = await Product.findOne({ url: url, _id: { $ne: id } });
@@ -196,6 +196,8 @@ exports.updateproduct = async (req, res) => {
         product.price = price;
         product.product_type = product_type;
         product.category = category;
+        product.subcategory = subcategory;
+
         product.modals = JSON.parse(modals);;
         await product.save();
         return res.json({
