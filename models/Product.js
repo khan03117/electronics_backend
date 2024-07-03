@@ -30,6 +30,7 @@ const pdschmea = new Schema({
         ref: "SubCategory"
     },
 
+
     product_type: {
         type: String
     },

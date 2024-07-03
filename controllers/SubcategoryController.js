@@ -142,6 +142,41 @@ exports.getSubCategoryById = async (req, res) => {
 };
 
 
+exports.getSubCategoriesByCategory = async (req, res) => {
+    try {
+        console.log('Entering getSubCategoriesByCategory function');
+        const categoryId = req.params.categoryId;
+        console.log('Category ID:', categoryId);
+
+        const subCategories = await SubCategory.find({ category: categoryId });
+        console.log('Subcategories:', subCategories);
+
+        if (!subCategories.length) {
+            console.log('No subcategories found');
+            return res.status(404).json({
+                success: 0,
+                error: [{ path: "categoryId", msg: "No subcategories found for this category" }],
+                data: [],
+                message: "No subcategories found"
+            });
+        }
+
+        res.json({
+            success: 1,
+            error: [],
+            data: subCategories,
+            message: "Subcategories fetched successfully"
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({
+            success: 0,
+            error: [{ path: "database", msg: err.message }],
+            data: [],
+            message: "Failed to fetch subcategories"
+        });
+    }
+};
 
 // Delete a subcategory by ID
 exports.deleteSubCategory = async (req, res) => {
