@@ -24,6 +24,13 @@ const orderSchema = new Schema({
         type: String,
         default: 'New Order'
     },
+    promo_code: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'PromoCode'
+    },
+    discount: {
+        type: Number
+    },
 
 
 }, { timestamps: true });

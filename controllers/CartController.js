@@ -137,6 +137,13 @@ const myorders = async (req, res) => {
         data: orders
     });
 }
+
+
+exports.usedCode = async (req, res) => {
+    let title = req.body.title;
+
+}
+
 module.exports = {
     _create, get_all, mycarts, delete_cart, update_cart, checkout, myorders
 }
