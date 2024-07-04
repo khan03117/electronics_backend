@@ -70,7 +70,16 @@ const verify_otp = async (req, res) => {
         });
     }
 }
+const profile = async (req, res) => {
+    const user = await User.findOne({ _id: req.user });
+    return res.json({
+        errors: [],
+        success: 0,
+        message: "User profile",
+        data: user
+    });
+}
 
 module.exports = {
-    send_otp, verify_otp
+    send_otp, verify_otp, profile
 }

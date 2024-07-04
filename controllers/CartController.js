@@ -1,5 +1,8 @@
+const ApplyPromo = require("../models/ApplyPromo");
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
+const PromoCode = require("../models/PromoCode");
+const User = require("../models/User");
 const UserAddress = require("../models/UserAddress");
 
 const _create = async (req, res) => {
@@ -42,7 +45,7 @@ const _create = async (req, res) => {
         }
 
     } else {
-        const data = { ...req.body, ['user']: req.user };
+        const data = { ...req.body, ['user']: req.user, is_ordered: false };
         await Cart.create(data).then(resp => {
             return res.json({
                 errors: [],
@@ -56,7 +59,6 @@ const _create = async (req, res) => {
 
 }
 const get_all = async (req, res) => {
-
     const items = await Cart.find({}).populate('product', 'title images').populate('modal', 'title image').populate('brand', 'title image');
     return res.json({
         errors: [],
@@ -108,25 +110,47 @@ async function generateOrderId() {
 }
 const checkout = async (req, res) => {
     const user = req.user;
-    const { address, name, email, city, state, pincode } = req.body;
+    const { address, name, email, city, state, pincode, payment_mode } = req.body;
+    let address_id = req.body.address_id;
     const carts = await Cart.find({ user: user, is_ordered: false });
     const total = carts.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const useraddress = new UserAddress({ user, address, name, email, city, state, pincode });
-    const uaddress = await useraddress.save();
+    if (!address_id) {
+        const uddd = {
+            user: user, address: address, name: name, email: email, city: city, state: state, pincode: pincode
+        }
+        const uadd = await UserAddress.create(uddd)
+        address_id = uadd._id;
+    }
+
+
+
+    await User.updateOne({ _id: user }, { name: name, email: email });
 
     const order_id = await generateOrderId();
     const order_date = new Date();
-    const order = await new Order({ order_id, order_date, user, uaddress, total });
+    const order = await new Order({ order_id, order_date, user, address_id, total });
     const porder = await order.save();
     carts.forEach(async cart => {
-        await Cart.updateOne({ _id: cart._id }, { order: porder._id, is_ordered: true });
+        await Cart.updateOne({ _id: cart._id }, { order: porder._id });
     });
     return res.json({
+        data: order_id,
+        message: "Order created successfully. Now pay online",
         errors: [],
         success: 1,
     });
 
 
+}
+const myaddresses = async (req, res) => {
+    const user = req.user;
+    const items = await UserAddress.find({ user: user });
+    return res.json({
+        errors: [],
+        success: 1,
+        data: items,
+        message: "List of my address"
+    });
 }
 const myorders = async (req, res) => {
     const user = req.user;
@@ -134,16 +158,72 @@ const myorders = async (req, res) => {
     return res.json({
         errors: [],
         success: 1,
-        data: orders
+        data: orders,
+        message: "List of my orders"
+    });
+}
+const cart_by_product = async (req, res) => {
+    const user = req.user;
+    const { id } = req.params;
+    const fdata = { user: user, is_ordered: false, product: id }
+    const items = await Cart.find(fdata);
+    return res.json({
+        errors: [],
+        success: 1,
+        data: items,
+        message: "Cart by product"
     });
 }
 
+const apply_promo = async (req, res) => {
+    const { promo_code } = req.body;
+    const user = req.user;
+    const fdata = {
+        'promo_code': promo_code
+    }
+    const isValid = await PromoCode.findOne(fdata);
+    if (!isValid) {
+        return res.json({
+            errors: [],
+            success: 0,
+            data: [],
+            message: "Invalid Promo Code"
+        });
+    }
+    const pid = isValid._id;
+    const firstuse = await ApplyPromo.findOne({ user: user, promo_code: pid, order_placed: true });
+    if (firstuse) {
+        return res.json({
+            errors: [],
+            success: 0,
+            data: [],
+            message: "You have used this code"
+        });
+    }
+    const carts = await Cart.find({ user: user, is_ordered: false });
+    const total = carts.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    let discount = 0;
+    if (isValid.discount_type == "Percent") {
+        const percent = isValid.discount;
+        discount = total * percent * 0.01;
+    } else {
+        discount = isValid.discount;
+    }
+    const pdata = {
+        user: user, promo_code: pid, order_placed: false, discount: discount
+    }
+    const npromo = await ApplyPromo.create(pdata);
+    return res.json({
+        errors: [],
+        success: 0,
+        data: npromo,
+        discount: discount,
+        message: "Code applied successfully"
+    });
 
-exports.usedCode = async (req, res) => {
-    let title = req.body.title;
 
 }
 
 module.exports = {
-    _create, get_all, mycarts, delete_cart, update_cart, checkout, myorders
+    _create, get_all, mycarts, delete_cart, update_cart, checkout, myorders, apply_promo, cart_by_product, myaddresses
 }
