@@ -40,6 +40,61 @@ exports.getOffers = async (req, res) => {
     }
 };
 
+
+// exports.getActiveOffers = async (req, res) => {
+//     try {
+//         const currentDate = new Date();
+
+//         const activeOffers = await OfferModal.find({
+//             is_Active: true,
+//             $and: [
+//                 { start_at: { $ne: currentDate } }, // Offer with start_at not equal to current date
+//                 { end_at: { $ne: currentDate } }    // Offer with end_at not equal to current date
+//             ]
+//         }).populate('product');
+
+//         res.status(200).json({
+//             success: true,
+//             data: activeOffers
+//         });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({
+//             success: false,
+//             error: err.message,
+//             message: "Failed to retrieve active offers."
+//         });
+//     }
+// };
+
+exports.getActiveOffers = async (req, res) => {
+    try {
+        const currentDate = new Date();
+        const activeOffers = await OfferModal.find({
+            is_Active: true,
+            $and: [
+                { start_at: { $ne: currentDate } }, // Offer with start_at not equal to current date
+                { end_at: { $ne: currentDate } },   // Offer with end_at not equal to current date
+                { start_at: { $exists: true } },    // Offer with start_at exists
+                { end_at: { $exists: true } }       // Offer with end_at exists
+            ]
+        }).populate('product');
+
+        res.status(200).json({
+            success: true,
+            data: activeOffers
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "Failed to retrieve active offers."
+        });
+    }
+};
+
+
 // Get Offer by ID
 exports.getOfferById = async (req, res) => {
     try {
@@ -96,31 +151,63 @@ exports.updateOffer = async (req, res) => {
 };
 
 // Delete Offer by ID (soft delete)
+// exports.deleteOffer = async (req, res) => {
+//     try {
+//         const deletedOffer = await OfferModal.findByIdAndUpdate(req.params.id,
+//             { deleted_at: new Date() },
+//             { new: true }
+//         );
+
+//         if (!deletedOffer) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: "Offer not found."
+//             });
+//         }
+
+//         res.status(200).json({
+//             success: true,
+//             data: deletedOffer,
+//             message: "Offer deleted successfully."
+//         });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({
+//             success: false,
+//             error: err.message,
+//             message: "Failed to delete offer."
+//         });
+//     }
+// };
+
+
 exports.deleteOffer = async (req, res) => {
     try {
-        const deletedOffer = await OfferModal.findByIdAndUpdate(req.params.id,
-            { deleted_at: new Date() },
-            { new: true }
-        );
+        const { id } = req.params;
+        const deleteoffer = await OfferModal.findByIdAndDelete(id);
 
-        if (!deletedOffer) {
+        if (!deleteoffer) {
             return res.status(404).json({
-                success: false,
-                message: "Offer not found."
+                success: 0,
+                error: ['Offer  not found.'],
+                data: null,
+                message: 'Failed to delete Offer.'
             });
         }
 
         res.status(200).json({
-            success: true,
-            data: deletedOffer,
-            message: "Offer deleted successfully."
+            success: 1,
+            error: [],
+            data: null,
+            message: 'Offerdeleted successfully.'
         });
     } catch (err) {
         console.error(err);
         res.status(500).json({
-            success: false,
-            error: err.message,
-            message: "Failed to delete offer."
+            success: 0,
+            error: [err.message],
+            data: null,
+            message: 'Failed to delete Offer.'
         });
     }
 };
