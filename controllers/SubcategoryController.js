@@ -144,15 +144,14 @@ exports.getSubCategoryById = async (req, res) => {
 
 exports.getSubCategoriesByCategory = async (req, res) => {
     try {
-        console.log('Entering getSubCategoriesByCategory function');
+
         const categoryId = req.params.categoryId;
-        console.log('Category ID:', categoryId);
 
         const subCategories = await SubCategory.find({ category: categoryId });
-        console.log('Subcategories:', subCategories);
+
 
         if (!subCategories.length) {
-            console.log('No subcategories found');
+
             return res.status(404).json({
                 success: 0,
                 error: [{ path: "categoryId", msg: "No subcategories found for this category" }],

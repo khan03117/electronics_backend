@@ -17,7 +17,7 @@ exports.createproduct = async (req, res) => {
         }
         const files = req.files;
         const imagePaths = files.map(file => file.path);
-        const { title, description, price, product_type, category, modals } = req.body;
+        const { title, description, price, product_type, category, modals, subcategory } = req.body;
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
 
         const isExists = await Product.findOne({ url: url });
@@ -38,6 +38,7 @@ exports.createproduct = async (req, res) => {
             product_type: product_type,
             category: category,
             images: imagePaths,
+            subcategory: subcategory,
             modals: modalsArray
         });
         const savedproduct = await newproduct.save();
@@ -58,7 +59,7 @@ exports.createproduct = async (req, res) => {
 };
 exports.get_product_by_id = async (req, res) => {
     const id = req.params.id;
-    const response = await PdModal.findOne({ _id: id, deleted_at: null }).populate('category')
+    const response = await PdModal.findOne({ _id: id, deleted_at: null }).populate('category').populate('subcategory')
     return res.json({
         success: 1,
         error: [],
@@ -78,7 +79,7 @@ exports.get_product_by_url = async (req, res) => {
     })
 }
 exports.getallproduct = async (req, res) => {
-    await PdModal.find({ deleted_at: null }).populate('category').then((response) => {
+    await PdModal.find({ deleted_at: null }).populate('category').populate('subcategory').then((response) => {
         return res.json({
             success: 1,
             error: [],

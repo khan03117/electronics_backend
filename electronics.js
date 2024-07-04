@@ -29,6 +29,8 @@ const adminRoutes = require('./routes/AdminRoutes');
 const policyroutes = require('./routes/PolicyRoutes');
 const promocoderoutes = require('./routes/PromoRoutes');
 const subcategoryroutes = require('./routes/SubcategoryRoutes');
+const offerroutes = require('./routes/OfferRoutes');
+
 
 
 const mongoose = require('mongoose');
@@ -59,6 +61,8 @@ app.use('/api/v1/social', adminRoutes);
 app.use('/api/v1/policy', policyroutes)
 app.use('/api/v1/promocode', promocoderoutes)
 app.use('/api/v1/subcategory', subcategoryroutes)
+app.use('/api/v1/offer', offerroutes)
+
 
 
 
