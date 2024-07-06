@@ -51,7 +51,12 @@ exports.createDeliveryCharge = async (req, res) => {
 exports.getAllDeliveryCharges = async (req, res) => {
     try {
         const deliveryCharges = await DeliveryCharge.find({});
-        res.status(200).send(deliveryCharges);
+        return res.json({
+            success: 1,
+            error: [],
+            data: deliveryCharges,
+            message: "All Delivery Charges"
+        });
     } catch (error) {
         res.status(500).send(error);
     }
@@ -70,7 +75,12 @@ exports.getDeliveryCharge = async (req, res) => {
         if (!deliveryCharge) {
             return res.status(404).send({ message: 'No delivery charge found for the given criteria' });
         }
-        res.status(200).send(deliveryCharge);
+        return res.json({
+            success: 1,
+            error: [],
+            data: deliveryCharge,
+            message: "Delivery Charge Fetched"
+        });
     } catch (error) {
         res.status(500).send(error);
     }
@@ -83,7 +93,12 @@ exports.updateDeliveryChargeById = async (req, res) => {
         if (!deliveryCharge) {
             return res.status(404).send();
         }
-        res.status(200).send(deliveryCharge);
+        return res.json({
+            success: 1,
+            error: [],
+            data: deliveryCharge,
+            message: "Delivery Charge Updated"
+        });
     } catch (error) {
         res.status(400).send(error);
     }
