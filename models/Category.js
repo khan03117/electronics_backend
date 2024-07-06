@@ -7,6 +7,9 @@ const cateschema = new Schema({
     image: {
         type: String
     },
+    idx: {
+        type: Number
+    },
     title: {
         type: String
     },

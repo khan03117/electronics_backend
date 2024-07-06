@@ -5,7 +5,9 @@ const bannerSchema = new Schema({
     image: {
         type: String
     },
-
+    url: {
+        type: String
+    },
     type: {
         type: String,
         default: 'Banner'

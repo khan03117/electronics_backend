@@ -44,14 +44,15 @@ const getall = async (req, res) => {
 }
 const _destroy = async (req, res) => {
     const { id } = req.params;
-    await Seller.deleteOne({ _id: id }).then((resp) => {
-        return res.json({
-            success: 0,
-            error: [],
-            data: resp,
-            message: "Seller deleted successfully"
-        });
-    })
+    const resp = await Seller.deleteOne({ _id: id });
+
+    return res.json({
+        success: 0,
+        error: [],
+        data: resp,
+        message: "Seller deleted successfully"
+    });
+
 }
 
 const _update = async (req, res) => {

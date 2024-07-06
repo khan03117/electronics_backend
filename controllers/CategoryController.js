@@ -12,9 +12,11 @@ const _create = async (req, res) => {
             message: "Create new category failed"
         })
     }
+    const total = await Category.countDocuments();
     let data = {
         title: title,
-        url: url
+        url: url,
+        idx: total + 1
     }
     if (req.file) {
         data['image'] = req.file.path
@@ -32,7 +34,7 @@ const _get_all = async (req, res) => {
     let fdata = {
         is_hidden: false
     }
-    await Category.find(fdata).then((response) => {
+    await Category.find(fdata).sort({ idx: 1 }).then((response) => {
         return res.json({
             success: 1,
             error: [],
@@ -42,7 +44,6 @@ const _get_all = async (req, res) => {
     })
 }
 const _delete = async (req, res) => {
-
     const id = req.params.category_id;
     const fdata = { _id: id }
     await Category.deleteOne(fdata).then((response) => {
@@ -55,7 +56,7 @@ const _delete = async (req, res) => {
     })
 }
 const _update = async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     const title = req.body.title;
     const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
     const isExists = await Category.findOne({ url: url, _id: { $ne: id } });
@@ -69,7 +70,10 @@ const _update = async (req, res) => {
     }
     let data = {
         title: title,
-        url: url
+        url: url,
+    }
+    if (req.body.idx) {
+        data['idx'] = req.body.idx;
     }
     if (req.file) {
         data['image'] = req.file.path
