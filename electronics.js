@@ -65,10 +65,6 @@ app.use('/api/v1/subcategory', subcategoryroutes);
 app.use('/api/v1/offer', offerroutes);
 app.use('/api/v1/seller', sellerroutes);
 
-
-
-
-
 app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {
