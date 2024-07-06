@@ -47,8 +47,8 @@ const _destroy = async (req, res) => {
     await Seller.deleteOne({ _id: id }).then((resp) => {
         return res.json({
             success: 0,
-            error: errors.array(),
-            data: [],
+            error: [],
+            data: resp,
             message: "Seller deleted successfully"
         });
     })
