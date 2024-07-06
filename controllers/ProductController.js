@@ -160,7 +160,7 @@ exports.get_products = async (req, res) => {
                 }
             },
             {
-                $sort: { 'category.title': 1 } // Sort by category title
+                $sort: { 'category.idx': 1 } // Sort by category title
             }
         ]);
         return res.json({
