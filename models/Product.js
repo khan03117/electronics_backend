@@ -19,7 +19,8 @@ const modalsschema = {
 }
 const pdschmea = new Schema({
     url: {
-        type: String
+        type: String,
+        unique: true
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
@@ -29,8 +30,10 @@ const pdschmea = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "SubCategory"
     },
-
-
+    seller: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Seller"
+    },
     product_type: {
         type: String
     },

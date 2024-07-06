@@ -16,7 +16,6 @@ exports.createDeliveryCharge = async (req, res) => {
     }
     const { minPurchaseAmount, maxPurchaseAmount, deliveryType } = req.body;
     try {
-        // Check for overlapping ranges
         const existingCharges = await DeliveryCharge.find({
             deliveryType,
             $or: [
@@ -41,7 +40,12 @@ exports.createDeliveryCharge = async (req, res) => {
 
         const deliveryCharge = new DeliveryCharge(req.body);
         await deliveryCharge.save();
-        res.status(201).send(deliveryCharge);
+        return res.json({
+            success: 1,
+            error: [],
+            data: deliveryCharge,
+            message: "New Delivery Charge created."
+        });
     } catch (error) {
         res.status(400).send(error);
     }
