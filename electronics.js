@@ -30,6 +30,7 @@ const policyroutes = require('./routes/PolicyRoutes');
 const promocoderoutes = require('./routes/PromoRoutes');
 const subcategoryroutes = require('./routes/SubcategoryRoutes');
 const offerroutes = require('./routes/OfferRoutes');
+const sellerroutes = require('./routes/SellerRoutes');
 
 
 
@@ -58,10 +59,11 @@ app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/banner', bannerRoutes);
 app.use('/api/v1/testimonial', asksRoutes);
 app.use('/api/v1/social', adminRoutes);
-app.use('/api/v1/policy', policyroutes)
-app.use('/api/v1/promocode', promocoderoutes)
-app.use('/api/v1/subcategory', subcategoryroutes)
-app.use('/api/v1/offer', offerroutes)
+app.use('/api/v1/policy', policyroutes);
+app.use('/api/v1/promocode', promocoderoutes);
+app.use('/api/v1/subcategory', subcategoryroutes);
+app.use('/api/v1/offer', offerroutes);
+app.use('/api/v1/seller', sellerroutes);
 
 
 
