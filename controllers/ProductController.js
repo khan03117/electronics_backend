@@ -145,7 +145,7 @@ exports.get_products = async (req, res) => {
                 $group: {
                     _id: '$categoryDetails._id',
                     categoryTitle: { $first: '$categoryDetails.title' },
-
+                    categoryIdx: { $first: '$categoryDetails.idx' },
                     products: { $push: '$$ROOT' }
                 }
             },
@@ -155,6 +155,7 @@ exports.get_products = async (req, res) => {
                     category: {
                         _id: '$_id',
                         title: '$categoryTitle',
+                        idx: '$categoryIdx',
                         products: '$products'
                     }
                 }
