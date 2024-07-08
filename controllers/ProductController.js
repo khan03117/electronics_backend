@@ -129,12 +129,7 @@ exports.get_products = async (req, res) => {
                     as: 'categoryDetails'
                 }
             },
-            {
-                $match: {
-                    ...(modal ? { "modals.modal": modal._id } : {}),
-                    ...(brand ? { "modals.brand": brand._id } : {})
-                }
-            },
+
             {
                 $unwind: {
                     path: '$categoryDetails',
