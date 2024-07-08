@@ -240,6 +240,20 @@ exports.updateproduct = async (req, res) => {
 
 
 };
+exports.delete_image = async (req, res) => {
+    const { pid, id } = req.params;
+    const product = await PdModal.findOne({ _id: pid });
+    const images = product.images;
+    images.splice(id, 1);
+    product.images = images;
+    await product.save();
+    return res.json({
+        success: 1,
+        error: [],
+        data: [],
+        message: "Image Deleted successfully."
+    })
+}
 exports.recommended_products = async (req, res) => {
     await PdModal.find({ deleted_at: null }).limit(10).then((response) => {
         return res.json({
