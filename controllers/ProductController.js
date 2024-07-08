@@ -18,7 +18,7 @@ exports.createproduct = async (req, res) => {
         }
         const files = req.files;
         const imagePaths = files.map(file => file.path);
-        const { title, description, price, product_type, category, modals, subcategory, seller } = req.body;
+        const { title, description, price, product_type, category, modals, subcategory, seller, mrp } = req.body;
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
 
         const isExists = await Product.findOne({ url: url });
@@ -40,6 +40,7 @@ exports.createproduct = async (req, res) => {
             category: category,
             images: imagePaths,
             modals: modalsArray,
+            mrp: mrp
 
         }
         if (subcategory) {
@@ -217,6 +218,7 @@ exports.updateproduct = async (req, res) => {
         product.product_type = product_type;
         product.category = category;
         product.subcategory = subcategory;
+        product.mrp = mrp;
         if (seller) {
             product.seller = seller;
         }
