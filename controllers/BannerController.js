@@ -53,7 +53,9 @@ const update_banner = async (req, res) => {
     })
 }
 const getall = async (req, res) => {
-    await Banner.find({}).sort({ createdAt: 1 }).then((resp) => {
+    const { type } = req.query;
+    const filter = type ? { type } : {};
+    await Banner.find(filter).sort({ createdAt: 1 }).then((resp) => {
         return res.json({
             errors: [],
             success: 1,
