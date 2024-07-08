@@ -190,58 +190,80 @@ exports.get_products = async (req, res) => {
 exports.updateproduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, price, product_type, category, modals, subcategory, seller } = req.body;
+        const { title, description, price, product_type, category, modals, subcategory, seller, mrp } = req.body;
+
+        // Ensure url is generated based on the updated title
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-        const files = req.files;
+
+        // Check if the updated url already exists for another product
         const isExists = await Product.findOne({ url: url, _id: { $ne: id } });
         if (isExists) {
             return res.json({
                 success: 0,
-                error: [{ path: "title", msg: "Already exits" }],
+                error: [{ path: "title", msg: "Already exists" }],
                 data: [],
                 message: "Product already exists"
-            })
-        }
-        const product = await Product.findOne({ _id: id });
-        if (files) {
-            const imagePaths = files.map(file => file.path);
-            const images = product.images;
-            imagePaths.forEach(img => {
-                images.push(img);
             });
-            product.images = images;
         }
+
+        // Retrieve the existing product
+        const product = await Product.findOne({ _id: id });
+
+        // Handle image uploads
+        const files = req.files;
+        if (files && files.length > 0) {
+            const imagePaths = files.map(file => file.path);
+            product.images.push(...imagePaths);
+        }
+
+        // Update product fields
         product.url = url;
         product.title = title;
         product.description = description;
         product.price = price;
         product.product_type = product_type;
         product.category = category;
-        product.subcategory = subcategory;
-        product.mrp = mrp;
-        if (seller) {
+
+        // Check and assign subcategory if present
+        if (subcategory && mongoose.Types.ObjectId.isValid(subcategory)) {
+            product.subcategory = subcategory; // Ensure subcategory is a valid ObjectId
+        }
+
+        // Check and assign mrp if present
+
+        product.mrp = (mrp && mrp != "undefined") ? mrp : price * 1.25; // Ensure mrp is a valid number
+
+
+        // Check and assign seller if present
+        if (seller && mongoose.Types.ObjectId.isValid(seller)) {
             product.seller = seller;
         }
-        product.modals = JSON.parse(modals);;
+
+        // Parse and assign modals if present
+        if (modals) {
+            product.modals = JSON.parse(modals);
+        }
+
+        // Save updated product
         await product.save();
+
         return res.json({
             success: 1,
             error: [],
             data: product,
             message: "Product updated successfully."
-        })
+        });
     } catch (error) {
-        console.log(error)
-        return res.json({
-            success: 1,
-            error: error,
+        console.error(error);
+        return res.status(500).json({
+            success: 0,
+            error: error.message,
             data: [],
-            message: "error"
-        })
+            message: "Error updating product."
+        });
     }
-
-
 };
+
 exports.delete_image = async (req, res) => {
     const { pid, id } = req.params;
     const product = await PdModal.findOne({ _id: pid });
