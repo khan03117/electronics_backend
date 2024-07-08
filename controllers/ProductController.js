@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const PdModal = require('../models/Product');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
@@ -104,6 +105,7 @@ exports.getallproduct = async (req, res) => {
 exports.get_products = async (req, res) => {
     try {
         const { category_url, seller, subcategory } = req.query;
+
         const category = await Category.findOne({ url: category_url });
         let match = {
             deleted_at: null,
@@ -112,20 +114,21 @@ exports.get_products = async (req, res) => {
         if (category) {
             match.category = category._id;
         }
-        if (subcategory) {
+        if (subcategory && mongoose.Types.ObjectId.isValid(subcategory)) {
             let filterd = {
                 _id: subcategory
             }
             if (category) {
                 filterd.category = category._id;
             }
+            console.log(filterd)
             const fsubcategory = await SubCategory.findOne(filterd);
             if (fsubcategory) {
                 match.subcategory = fsubcategory._id
             }
         }
 
-        if (seller) {
+        if (seller && mongoose.Types.ObjectId.isValid(seller)) {
             const fseller = await Seller.findOne({ _id: seller });
             if (fseller) {
                 match.seller = fseller._id

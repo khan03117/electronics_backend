@@ -2,6 +2,9 @@ const { default: mongoose, Schema } = require("mongoose");
 const sellerschema = new Schema({
     title: {
         type: String
+    },
+    url: {
+        type: String
     }
 }, { timestamps: true });
 

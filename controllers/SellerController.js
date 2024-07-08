@@ -12,7 +12,8 @@ const _create = async (req, res) => {
         });
     }
     const { title } = req.body;
-    const isExists = await Seller.findOne({ title: title });
+    const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+    const isExists = await Seller.findOne({ url: url });
     if (isExists) {
         return res.json({
             success: 0,
@@ -22,7 +23,7 @@ const _create = async (req, res) => {
         });
     }
     if (!isExists) {
-        await Seller.create({ title: title }).then((resp) => {
+        await Seller.create({ title: title, url: url }).then((resp) => {
             return res.json({
                 success: 0,
                 error: errors.array(),
@@ -58,7 +59,9 @@ const _destroy = async (req, res) => {
 const _update = async (req, res) => {
     const { id } = req.params;
     const { title } = req.body;
-    const isExists = await Seller.findOne({ title: title, _id: { $ne: id } });
+    const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+    const isExists = await Seller.findOne({ url: url, _id: { $ne: id } });
+
     if (isExists) {
         return res.json({
             success: 0,
@@ -67,7 +70,7 @@ const _update = async (req, res) => {
             message: "title already exists"
         });
     }
-    await Seller.updateOne({ _id: id }, { title: title }).then((resp) => {
+    await Seller.updateOne({ _id: id }, { title: title, url: url }).then((resp) => {
         return res.json({
             success: 1,
             error: [],
