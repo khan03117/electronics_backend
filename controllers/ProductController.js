@@ -4,6 +4,8 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Modal = require('../models/Modal');
 const Brand = require('../models/Brand');
+const SubCategory = require('../models/SubCategory');
+const Seller = require('../models/Seller');
 exports.createproduct = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -103,7 +105,6 @@ exports.get_products = async (req, res) => {
     try {
         const { category_url, seller, subcategory } = req.query;
         const category = await Category.findOne({ url: category_url });
-
         let match = {
             deleted_at: null,
             is_hidden: false,
@@ -111,13 +112,25 @@ exports.get_products = async (req, res) => {
         if (category) {
             match.category = category._id;
         }
-        if (seller) {
-            match.seller = seller
-        }
         if (subcategory) {
-            match.subcategory = subcategory
+            let filterd = {
+                _id: subcategory
+            }
+            if (category) {
+                filterd.category = category._id;
+            }
+            const fsubcategory = await SubCategory.findOne(filterd);
+            if (fsubcategory) {
+                match.subcategory = fsubcategory._id
+            }
         }
 
+        if (seller) {
+            const fseller = await Seller.findOne({ _id: seller });
+            if (fseller) {
+                match.seller = fseller._id
+            }
+        }
         const matchStage = { $match: match };
         const results = await PdModal.aggregate([
             matchStage,
