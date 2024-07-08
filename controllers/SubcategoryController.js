@@ -93,7 +93,9 @@ exports.updateSubCategory = async (req, res) => {
 // Get all subcategories
 exports.getSubCategories = async (req, res) => {
     try {
-        const subCategories = await SubCategory.find().populate('category');
+        const { category } = req.query;
+        const filter = category ? { category: category } : {};
+        const subCategories = await SubCategory.find(filter).populate('category');
         res.status(200).json({
             success: 1,
             errors: [],
