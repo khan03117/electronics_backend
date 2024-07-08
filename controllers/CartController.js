@@ -4,6 +4,7 @@ const Order = require("../models/Order");
 const PromoCode = require("../models/PromoCode");
 const User = require("../models/User");
 const UserAddress = require("../models/UserAddress");
+const Wishlist = require("../models/Wishlist");
 
 const _create = async (req, res) => {
     // const errors = validationResult(req);
@@ -59,6 +60,7 @@ const _create = async (req, res) => {
 
 }
 const get_all = async (req, res) => {
+
     const items = await Cart.find({}).populate('product', 'title images').populate('modal', 'title image').populate('brand', 'title image');
     return res.json({
         errors: [],
@@ -76,6 +78,106 @@ const mycarts = async (req, res) => {
         data: items
     });
 }
+
+const mycart = async (req, res) => {
+    try {
+        const items = await Cart.aggregate([
+            { $match: { is_ordered: false } },
+            {
+                $group: {
+                    _id: "$product",
+                    totalQuantity: { $sum: "$quantity" },
+                    totalPrice: { $sum: { $multiply: ["$price", "$quantity"] } },
+                    cartItems: { $push: "$$ROOT" }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $lookup: {
+                    from: 'modals',
+                    localField: 'cartItems.modal',
+                    foreignField: '_id',
+                    as: 'modalDetails'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'brands',
+                    localField: 'cartItems.brand',
+                    foreignField: '_id',
+                    as: 'brandDetails'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    product: "$productDetails",
+                    totalQuantity: 1,
+                    totalPrice: 1,
+                    cartItems: {
+                        $map: {
+                            input: "$cartItems",
+                            as: "item",
+                            in: {
+                                _id: "$$item._id",
+                                user: "$$item.user",
+                                product: "$$item.product",
+                                modal: {
+                                    $arrayElemAt: [{
+                                        $filter: {
+                                            input: "$modalDetails",
+                                            as: "modal",
+                                            cond: { $eq: ["$$modal._id", "$$item.modal"] }
+                                        }
+                                    }, 0]
+                                },
+                                brand: {
+                                    $arrayElemAt: [{
+                                        $filter: {
+                                            input: "$brandDetails",
+                                            as: "brand",
+                                            cond: { $eq: ["$$brand._id", "$$item.brand"] }
+                                        }
+                                    }, 0]
+                                },
+                                price: "$$item.price",
+                                quantity: "$$item.quantity",
+                                is_ordered: "$$item.is_ordered",
+                                createdAt: "$$item.createdAt",
+                                updatedAt: "$$item.updatedAt"
+                            }
+                        }
+                    }
+                }
+            }
+        ]);
+
+        return res.json({
+            errors: [],
+            success: 1,
+            message: "Cart entry fetched successfully",
+            data: items
+        });
+    } catch (error) {
+        return res.json({
+            errors: [error.message],
+            success: 0,
+            message: "Failed to fetch cart entry",
+            data: []
+        });
+    }
+};
+
 const delete_cart = async (req, res) => {
     const { id } = req.params;
     await Cart.deleteOne({ _id: id, is_ordered: false }).then(resp => {
@@ -223,7 +325,33 @@ const apply_promo = async (req, res) => {
 
 
 }
-
+const add_to_wishlist = async (req, res) => {
+    const { product, brand, modal } = req.body;
+    const data = {
+        user: req.user,
+        product: product,
+        brand: brand,
+        modal: modal
+    }
+    await Wishlist.create(data).then((resp) => {
+        return res.json({
+            errors: [],
+            success: 1,
+            data: items,
+            message: "Wishlist updated"
+        });
+    })
+}
+const get_wishlist = async (req, res) => {
+    const user = req.user;
+    const items = await Cart.find({ user: user });
+    return res.json({
+        errors: [],
+        success: 1,
+        data: items,
+        message: "Wishlist fetched successfully"
+    });
+}
 module.exports = {
-    _create, get_all, mycarts, delete_cart, update_cart, checkout, myorders, apply_promo, cart_by_product, myaddresses
+    get_wishlist, add_to_wishlist, mycart, _create, get_all, mycarts, delete_cart, update_cart, checkout, myorders, apply_promo, cart_by_product, myaddresses
 }
