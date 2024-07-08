@@ -43,6 +43,9 @@ const pdschmea = new Schema({
     price: {
         type: Number
     },
+    mrp: {
+        type: Number
+    },
     images: [String],
     modals: [modalsschema],
     description: {
