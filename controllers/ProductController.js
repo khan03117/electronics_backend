@@ -3,8 +3,6 @@ const mongoose = require('mongoose');
 const PdModal = require('../models/Product');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
-const Modal = require('../models/Modal');
-const Brand = require('../models/Brand');
 const SubCategory = require('../models/SubCategory');
 const Seller = require('../models/Seller');
 exports.createproduct = async (req, res) => {
@@ -121,15 +119,14 @@ exports.get_products = async (req, res) => {
             if (category) {
                 filterd.category = category._id;
             }
-            console.log(filterd)
             const fsubcategory = await SubCategory.findOne(filterd);
             if (fsubcategory) {
                 match.subcategory = fsubcategory._id
             }
         }
 
-        if (seller && mongoose.Types.ObjectId.isValid(seller)) {
-            const fseller = await Seller.findOne({ _id: seller });
+        if (seller) {
+            const fseller = await Seller.findOne({ url: seller });
             if (fseller) {
                 match.seller = fseller._id
             }
