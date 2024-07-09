@@ -45,12 +45,10 @@ exports.getActiveOffers = async (req, res) => {
         const currentDate = new Date();
         const activeOffers = await OfferModal.find({
             is_Active: true,
-            $and: [
-                { start_at: { $ne: currentDate } }, // Offer with start_at not equal to current date
-                { end_at: { $ne: currentDate } },   // Offer with end_at not equal to current date
-                { start_at: { $exists: true } },    // Offer with start_at exists
-                { end_at: { $exists: true } }       // Offer with end_at exists
-            ]
+            start_at: { $lte: currentDate },  // Offer with start_at less than or equal to the current date
+            end_at: { $gte: currentDate },    // Offer with end_at greater than or equal to the current date
+            start_at: { $exists: true },      // Offer with start_at exists
+            end_at: { $exists: true }
         }).populate('product');
 
         res.status(200).json({
