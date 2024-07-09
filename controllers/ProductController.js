@@ -89,13 +89,23 @@ exports.get_product_by_url = async (req, res) => {
             message: "Product not found."
         });
     }
+    const currentDate = new Date();
     const wishlistEntry = await Wishlist.findOne({ user: req.user, product: product._id });
+    const isOffer = await PdModal.findOne({
+        product: product._id,
+        is_Active: true,
+        start_at: { $lte: currentDate },  // Offer with start_at less than or equal to the current date
+        end_at: { $gte: currentDate },    // Offer with end_at greater than or equal to the current date
+        start_at: { $exists: true },      // Offer with start_at exists
+        end_at: { $exists: true }
+    });
     return res.json({
         success: 1,
         error: [],
         data: product,
         is_wishlist: !!wishlistEntry,
-        'wishlist' : wishlistEntry,
+        'wishlist': wishlistEntry,
+        'offer': isOffer,
         message: "Product fetched successfully."
     })
 }
