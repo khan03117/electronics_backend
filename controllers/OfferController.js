@@ -40,33 +40,6 @@ exports.getOffers = async (req, res) => {
     }
 };
 
-
-// exports.getActiveOffers = async (req, res) => {
-//     try {
-//         const currentDate = new Date();
-
-//         const activeOffers = await OfferModal.find({
-//             is_Active: true,
-//             $and: [
-//                 { start_at: { $ne: currentDate } }, // Offer with start_at not equal to current date
-//                 { end_at: { $ne: currentDate } }    // Offer with end_at not equal to current date
-//             ]
-//         }).populate('product');
-
-//         res.status(200).json({
-//             success: true,
-//             data: activeOffers
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({
-//             success: false,
-//             error: err.message,
-//             message: "Failed to retrieve active offers."
-//         });
-//     }
-// };
-
 exports.getActiveOffers = async (req, res) => {
     try {
         const currentDate = new Date();

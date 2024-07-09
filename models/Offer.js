@@ -13,7 +13,7 @@ const OfferSchema = new Schema({
         type: String
     },
     discount_percent: {
-        type: String
+        type: Number
     },
     is_Active: {
         type: Boolean,
