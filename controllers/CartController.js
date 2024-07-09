@@ -326,25 +326,41 @@ const apply_promo = async (req, res) => {
 
 }
 const add_to_wishlist = async (req, res) => {
-    const { product, brand, modal } = req.body;
+    const { product_id } = req.body;
     const data = {
         user: req.user,
-        product: product,
-        brand: brand,
-        modal: modal
+        product: product_id,
     }
-    await Wishlist.create(data).then((resp) => {
+    const filter = {
+        user: req.user,
+        product: product_id,
+    }
+   
+    const isExists = await Wishlist.findOne({ ...filter });
+    if (isExists) {
+        await Wishlist.deleteOne({ _id: isExists._id });
+        return res.json({
+            errors: [],
+            success: 0,
+            data: isExists,
+            message: "Product removed from wishlist"
+        });
+    } else {
+        const wishlist = await Wishlist.create(data);
         return res.json({
             errors: [],
             success: 1,
-            data: items,
-            message: "Wishlist updated"
+            data: wishlist,
+            message: "Product added to wishlist"
         });
-    })
+
+
+    }
+
 }
 const get_wishlist = async (req, res) => {
     const user = req.user;
-    const items = await Cart.find({ user: user });
+    const items = await Wishlist.find({ user: user }).populate('product');
     return res.json({
         errors: [],
         success: 1,
@@ -352,6 +368,16 @@ const get_wishlist = async (req, res) => {
         message: "Wishlist fetched successfully"
     });
 }
+const check_wishlist = async (req, res) => {
+    const user = req.user;
+    const items = await Wishlist.findOne({ user: user, product : req.params.product_id });
+    return res.json({
+        errors: [],
+        success: 1,
+        data: items ? true : false,
+        message: "Wishlist fetched successfully"
+    });
+}
 module.exports = {
-    get_wishlist, add_to_wishlist, mycart, _create, get_all, mycarts, delete_cart, update_cart, checkout, myorders, apply_promo, cart_by_product, myaddresses
+    check_wishlist, get_wishlist, add_to_wishlist, mycart, _create, get_all, mycarts, delete_cart, update_cart, checkout, myorders, apply_promo, cart_by_product, myaddresses
 }

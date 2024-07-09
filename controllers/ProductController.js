@@ -5,6 +5,7 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const SubCategory = require('../models/SubCategory');
 const Seller = require('../models/Seller');
+const Wishlist = require('../models/Wishlist');
 exports.createproduct = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -78,12 +79,23 @@ exports.get_product_by_id = async (req, res) => {
 }
 exports.get_product_by_url = async (req, res) => {
     const url = req.params.url;
-    const response = await PdModal.findOne({ url: url, deleted_at: null })
-        .populate('category').populate('modals.modal').populate('modals.brand')
+    const product = await PdModal.findOne({ url: url, deleted_at: null })
+        .populate('category').populate('modals.modal').populate('modals.brand');
+    if (!product) {
+        return res.status(404).json({
+            success: 0,
+            error: ["Product not found."],
+            data: null,
+            message: "Product not found."
+        });
+    }
+    const wishlistEntry = await Wishlist.findOne({ user: req.user, product: product._id });
     return res.json({
         success: 1,
         error: [],
-        data: response,
+        data: product,
+        is_wishlist: !!wishlistEntry,
+        'wishlist' : wishlistEntry,
         message: "Product fetched successfully."
     })
 }
