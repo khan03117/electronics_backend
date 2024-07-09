@@ -31,7 +31,7 @@ const promocoderoutes = require('./routes/PromoRoutes');
 const subcategoryroutes = require('./routes/SubcategoryRoutes');
 const offerroutes = require('./routes/OfferRoutes');
 const sellerroutes = require('./routes/SellerRoutes');
-
+const faqroutes = require('./routes/FaqRoutes')
 
 
 const mongoose = require('mongoose');
@@ -64,7 +64,7 @@ app.use('/api/v1/promocode', promocoderoutes);
 app.use('/api/v1/subcategory', subcategoryroutes);
 app.use('/api/v1/offer', offerroutes);
 app.use('/api/v1/seller', sellerroutes);
-
+app.use('/api/v1/faq', faqroutes);
 app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {
