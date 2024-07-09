@@ -6,6 +6,7 @@ const Category = require('../models/Category');
 const SubCategory = require('../models/SubCategory');
 const Seller = require('../models/Seller');
 const Wishlist = require('../models/Wishlist');
+const Offer = require('../models/Offer');
 exports.createproduct = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -91,7 +92,7 @@ exports.get_product_by_url = async (req, res) => {
     }
     const currentDate = new Date();
     const wishlistEntry = await Wishlist.findOne({ user: req.user, product: product._id });
-    const isOffer = await PdModal.findOne({
+    const isOffer = await Offer.findOne({
         product: product._id,
         is_Active: true,
         start_at: { $lte: currentDate },  // Offer with start_at less than or equal to the current date
