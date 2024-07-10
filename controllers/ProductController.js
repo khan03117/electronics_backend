@@ -207,6 +207,30 @@ exports.get_products = async (req, res) => {
     }
 }
 
+exports.search_product = async (req, res) => {
+    const { key } = req.params
+    await PdModal.find({
+        deleted_at: null,
+        $or: [
+            { title: { $regex: key, $options: 'i' } },
+            { url: { $regex: key, $options: 'i' } },
+            { 'category.title': { $regex: key, $options: 'i' } },
+            { 'seller.title': { $regex: key, $options: 'i' } }
+        ]
+    })
+        .populate('category')
+        .populate('subcategory')
+        .populate('seller')
+        .then((response) => {
+            return res.json({
+                success: 1,
+                error: [],
+                data: response,
+                message: "Product fetched successfully."
+            })
+        })
+}
+
 
 
 

@@ -1,7 +1,7 @@
 
 
 const express = require('express')
-const { createproduct, getallproduct, updateproduct, deleteproduct, get_products, get_product_by_id, recommended_products, get_product_by_url, delete_image } = require('../controllers/ProductController')
+const { createproduct, getallproduct, updateproduct, deleteproduct, get_products, get_product_by_id, recommended_products, get_product_by_url, delete_image, search_product } = require('../controllers/ProductController')
 const { body } = require('express-validator')
 const Category = require('../models/Category')
 const Brand = require('../models/Brand')
@@ -40,6 +40,7 @@ router.get('/', getallproduct)
 router.put('/:id', store.array('images', 6), updateproduct)
 router.delete('/delete/:id', deleteproduct);
 router.get('/recommended', recommended_products);
+router.post('/search/:key', search_product);
 
 
 
