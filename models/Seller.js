@@ -5,6 +5,9 @@ const sellerschema = new Schema({
     },
     url: {
         type: String
+    },
+    image: {
+        type: String
     }
 }, { timestamps: true });
 
