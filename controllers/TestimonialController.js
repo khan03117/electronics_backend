@@ -23,6 +23,7 @@ const _create = async (req, res) => {
         });
     }
 }
+
 const delete_testimonial = async (req, res) => {
     const { id } = req.params;
     await Testimonial.deleteOne({ _id: id }).then(resp => {
@@ -48,6 +49,28 @@ const update_data = async (req, res) => {
         });
     })
 }
+const show_control = async (req, res) => {
+    const { id } = req.params;
+    const item = await Testimonial.findOne({ _id: id });
+    if (item) {
+        item.is_hidden = !item.is_hidden
+        item.save();
+        return res.json({
+            errors: [],
+            success: 1,
+            message: "Testimonial updated successfully",
+            data: item
+        });
+    } else {
+        return res.json({
+            errors: [],
+            success: 0,
+            message: "Testimonial failed",
+            data: []
+        });
+    }
+
+}
 const getall = async (req, res) => {
     await Testimonial.find({}).sort({ createdAt: 1 }).then((resp) => {
         return res.json({
@@ -60,5 +83,5 @@ const getall = async (req, res) => {
 }
 
 module.exports = {
-    _create, delete_testimonial, getall, update_data
+    _create, delete_testimonial, getall, update_data, show_control
 }
