@@ -23,7 +23,13 @@ const _create = async (req, res) => {
         });
     }
     if (!isExists) {
-        await Seller.create({ title: title, url: url }).then((resp) => {
+        const data = {
+            title: title, url: url
+        }
+        if (req.file) {
+            data['image'] = req.file.path
+        }
+        await Seller.create({ ...data }).then((resp) => {
             return res.json({
                 success: 0,
                 error: errors.array(),
@@ -70,7 +76,13 @@ const _update = async (req, res) => {
             message: "title already exists"
         });
     }
-    await Seller.updateOne({ _id: id }, { title: title, url: url }).then((resp) => {
+    const data = {
+        title: title, url: url
+    }
+    if (req.file) {
+        data['image'] = req.file.path
+    }
+    await Seller.updateOne({ _id: id }, { ...data }).then((resp) => {
         return res.json({
             success: 1,
             error: [],
