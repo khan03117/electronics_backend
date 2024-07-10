@@ -3,7 +3,7 @@ const Testimonial = require("../models/Testimonial");
 
 const _create = async (req, res) => {
     try {
-        const data = { ...req.body };
+        const data = { ...req.body, is_hidden: true };
         if (req.file) {
             data['image'] = req.file.path
         }
@@ -71,8 +71,23 @@ const show_control = async (req, res) => {
     }
 
 }
-const getall = async (req, res) => {
+const getalladmin = async (req, res) => {
     await Testimonial.find({}).sort({ createdAt: 1 }).then((resp) => {
+        return res.json({
+            errors: [],
+            success: 1,
+            message: "Testimonial fetched successfully",
+            data: resp
+        });
+    })
+}
+const getall = async (req, res) => {
+    const { product } = req.query;
+    const filter = { is_hidden: false };
+    if (product) {
+        filter['product'] = product;
+    }
+    await Testimonial.find(filter).sort({ createdAt: 1 }).then((resp) => {
         return res.json({
             errors: [],
             success: 1,
@@ -83,5 +98,5 @@ const getall = async (req, res) => {
 }
 
 module.exports = {
-    _create, delete_testimonial, getall, update_data, show_control
+    _create, delete_testimonial, getall, update_data, show_control, getalladmin
 }
