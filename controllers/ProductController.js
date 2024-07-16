@@ -19,8 +19,48 @@ exports.createproduct = async (req, res) => {
             });
         }
         const files = req.files;
+        if (!files) {
+            return res.json({
+                errors: [],
+                success: 0,
+                message: "Images are required at least one image is required",
+                data: []
+            });
+        }
         const imagePaths = files.map(file => file.path);
         const { title, description, price, product_type, category, modals, subcategory, seller, mrp } = req.body;
+        if (!title) {
+            return res.json({
+                errors: [],
+                success: 0,
+                message: "title is required.",
+                data: []
+            });
+        }
+        if (!product_type) {
+            return res.json({
+                errors: [],
+                success: 0,
+                message: "product_type is required.",
+                data: []
+            });
+        }
+        if (!category) {
+            return res.json({
+                errors: [],
+                success: 0,
+                message: "category is required.",
+                data: []
+            });
+        }
+        if (!price) {
+            return res.json({
+                errors: [],
+                success: 0,
+                message: "price is required.",
+                data: []
+            });
+        }
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
 
         const isExists = await Product.findOne({ url: url });
