@@ -1,7 +1,6 @@
 const SubCategory = require('../models/SubCategory');
-
-
-
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
 // Create a new subcategory
 exports.createSubCategory = async (req, res) => {
     const title = req.body.title;
@@ -117,6 +116,14 @@ exports.getSubCategories = async (req, res) => {
 exports.getSubCategoryById = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!ObjectId.isValid(id)) {
+            return res.status(404).json({
+                success: 0,
+                errors: [{ path: 'subcategory', msg: 'Subcategory not found' }],
+                data: [],
+                message: 'Failed to fetch subcategory.'
+            });
+        }
         const subCategory = await SubCategory.findById(id).populate('category');
         if (!subCategory) {
             return res.status(404).json({

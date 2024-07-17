@@ -7,6 +7,8 @@ const SubCategory = require('../models/SubCategory');
 const Seller = require('../models/Seller');
 const Wishlist = require('../models/Wishlist');
 const Offer = require('../models/Offer');
+
+const { ObjectId } = mongoose.Types;
 exports.createproduct = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -151,19 +153,55 @@ exports.get_product_by_url = async (req, res) => {
     })
 }
 exports.getallproduct = async (req, res) => {
-    await PdModal.find({ deleted_at: null })
-        .populate('category')
-        .populate('subcategory')
-        .populate('seller')
-        .then((response) => {
-            return res.json({
-                success: 1,
-                error: [],
-                data: response,
-                message: "Product fetched successfully."
-            })
-        })
-}
+    let { rows, page, category_id, subcategory_id, seller_id, keyword } = req.query;
+    rows = rows ? parseInt(rows) : 5; // Default to 5 if not provided
+    page = page ? parseInt(page) : 1; // Default to 1 if not provided
+
+    try {
+        const fdata = { deleted_at: null };
+        if (category_id && ObjectId.isValid(category_id)) {
+            fdata['category'] = category_id;
+        }
+        if (subcategory_id && ObjectId.isValid(subcategory_id)) {
+            fdata['subcategory'] = subcategory_id;
+        }
+        if (seller_id && ObjectId.isValid(seller_id)) {
+            fdata['seller'] = seller_id;
+        }
+        if (keyword.length > 3) {
+            fdata['title'] = { $regex: keyword, $options: 'i' };
+        }
+
+        const totalDocs = await PdModal.countDocuments(fdata);
+        const totalpage = Math.ceil(totalDocs / rows); // Use ceil to get the exact total pages
+        const skip = Math.max(rows * (page - 1), 0);
+
+        const products = await PdModal.find(fdata)
+            .populate('category')
+            .populate('subcategory')
+            .populate('seller')
+            .skip(skip)
+            .limit(rows);
+
+        return res.json({
+            success: 1,
+            error: [],
+            data: products,
+            totalpage: totalpage,
+            totaldocs: totalDocs,
+            message: "Product fetched successfully."
+        });
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        return res.status(500).json({
+            success: 0,
+            error: ["Internal server error"],
+            data: [],
+            message: "Failed to fetch products."
+        });
+    }
+};
+
 exports.get_products = async (req, res) => {
     try {
         const { category_url, seller, subcategory } = req.query;
