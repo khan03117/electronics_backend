@@ -168,7 +168,7 @@ exports.getallproduct = async (req, res) => {
         if (seller_id && ObjectId.isValid(seller_id)) {
             fdata['seller'] = seller_id;
         }
-        if (keyword.length > 3) {
+        if (keyword && keyword.length > 3) {
             fdata['title'] = { $regex: keyword, $options: 'i' };
         }
 
