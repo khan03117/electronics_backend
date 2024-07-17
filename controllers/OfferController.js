@@ -4,18 +4,33 @@ const OfferModal = require('../models/Offer'); // Adjust the path to your model
 exports.createOffer = async (req, res) => {
     try {
         const { product, start_at, end_at, discount_percent, is_Active } = req.body;
+        const isExists = await OfferModal.find({
+            is_Active: true,
+            product: product,
+            start_at: { $lte: currentDate },
+            end_at: { $gte: currentDate },
+            start_at: { $exists: true },
+            end_at: { $exists: true }
+        });
+        if (isExists) {
+            res.status(201).json({
+                success: 0,
+                data: [],
+                message: "Offer Already exists."
+            });
+        }
         const newOffer = new OfferModal({ product, start_at, end_at, discount_percent, is_Active });
         await newOffer.save();
 
         res.status(201).json({
-            success: true,
+            success: 1,
             data: newOffer,
             message: "Offer created successfully."
         });
     } catch (err) {
         console.error(err);
         res.status(500).json({
-            success: false,
+            success: 0,
             error: err.message,
             message: "Failed to create offer."
         });
@@ -27,13 +42,13 @@ exports.getOffers = async (req, res) => {
     try {
         const offers = await OfferModal.find().populate('product');
         res.status(200).json({
-            success: true,
+            success: 1,
             data: offers
         });
     } catch (err) {
         console.error(err);
         res.status(500).json({
-            success: false,
+            success: 0,
             error: err.message,
             message: "Failed to retrieve offers."
         });
@@ -52,13 +67,13 @@ exports.getActiveOffers = async (req, res) => {
         }).populate('product');
 
         res.status(200).json({
-            success: true,
+            success: 1,
             data: activeOffers
         });
     } catch (err) {
         console.error(err);
         res.status(500).json({
-            success: false,
+            success: 0,
             error: err.message,
             message: "Failed to retrieve active offers."
         });
