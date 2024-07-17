@@ -4,6 +4,7 @@ const OfferModal = require('../models/Offer'); // Adjust the path to your model
 exports.createOffer = async (req, res) => {
     try {
         const { product, start_at, end_at, discount_percent, is_Active } = req.body;
+        const currentDate = new Date();
         const isExists = await OfferModal.find({
             is_Active: true,
             product: product,
