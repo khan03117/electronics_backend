@@ -48,6 +48,9 @@ const pdschmea = new Schema({
     },
     images: [String],
     modals: [modalsschema],
+    total_moq: {
+        type: Number
+    },
     description: {
         type: String,
     },

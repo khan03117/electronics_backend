@@ -31,7 +31,7 @@ exports.createproduct = async (req, res) => {
             });
         }
         const imagePaths = files.map(file => file.path);
-        const { title, description, price, product_type, category, modals, subcategory, seller, mrp } = req.body;
+        const { title, description, price, product_type, category, modals, subcategory, seller, mrp, total_moq } = req.body;
         if (!title) {
             return res.json({
                 errors: [],
@@ -85,7 +85,8 @@ exports.createproduct = async (req, res) => {
             category: category,
             images: imagePaths,
             modals: modalsArray,
-            mrp: mrp
+            mrp: mrp,
+            total_moq: total_moq
 
         }
         if (subcategory) {
