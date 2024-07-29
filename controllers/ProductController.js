@@ -7,6 +7,7 @@ const SubCategory = require('../models/SubCategory');
 const Seller = require('../models/Seller');
 const Wishlist = require('../models/Wishlist');
 const Offer = require('../models/Offer');
+const Cart = require('../models/Cart');
 
 const { ObjectId } = mongoose.Types;
 exports.createproduct = async (req, res) => {
@@ -417,6 +418,7 @@ exports.recommended_products = async (req, res) => {
 exports.deleteproduct = async (req, res) => {
     const id = await req.params.id;
     const fdata = { _id: id }
+    await Cart.deleteOne({ product: id, is_ordered: false, order: null });
     await PdModal.updateOne(fdata, { deleted_at: new Date() }).then((response) => {
         return res.json({
             success: 1,
