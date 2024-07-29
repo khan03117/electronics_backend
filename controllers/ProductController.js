@@ -417,7 +417,7 @@ exports.recommended_products = async (req, res) => {
 exports.deleteproduct = async (req, res) => {
     const id = await req.params.id;
     const fdata = { _id: id }
-    await PdModal.deleteOne(fdata).then((response) => {
+    await PdModal.updateOne(fdata, { deleted_at: new Date() }).then((response) => {
         return res.json({
             success: 1,
             error: [],
