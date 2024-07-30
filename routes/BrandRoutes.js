@@ -3,9 +3,9 @@ const { brand_create, brand_delete, brand_update, get_brandby_Category, brandget
 const store = require('../middleware/Upload')
 
 const { AdminAuth } = require('../middleware/AdminAuth')
-const router = express.Router()
+const router = express.Router();
 
-router.post('/', AdminAuth, store.single('image'), brand_create)
+router.post('/', store.single('image'), brand_create);
 router.delete('/delete/:brand_id', AdminAuth, brand_delete)
 router.get('/', brandgetall)
 router.put('/:id', AdminAuth, store.single('image'), brand_update)
