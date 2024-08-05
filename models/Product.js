@@ -4,11 +4,13 @@ const { Schema, default: mongoose } = require("mongoose");
 const modalsschema = {
     brand: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Brand"
+        ref: "Brand",
+        default: null
     },
     modal: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Modal"
+        ref: "Modal",
+        default: null
     },
     moq: {
         type: Number

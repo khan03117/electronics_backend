@@ -75,7 +75,7 @@ exports.createproduct = async (req, res) => {
                 message: "Product already exists"
             })
         }
-        const modalsArray = JSON.parse(modals);
+        const modalsArray = modals ? JSON.parse(modals) : [];
         const data = {
             url: url,
             title: title,
@@ -104,11 +104,11 @@ exports.createproduct = async (req, res) => {
             message: "Product created successfully."
         });
     } catch (err) {
-        return res.status(500).json({
+        return res.json({
             success: 0,
             error: [err.message],
             data: [],
-            message: "An error occurred while Creating the Product"
+            message: err.message
         });
     }
 };
