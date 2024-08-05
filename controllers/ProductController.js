@@ -86,8 +86,9 @@ exports.createproduct = async (req, res) => {
             images: imagePaths,
             modals: modalsArray,
             mrp: mrp,
-            total_moq: total_moq
-
+            total_moq: total_moq,
+            moq: product_type == "single" ? req.body.moq : 0,
+            stock: product_type == "single" ? req.body.stock : 0
         }
         if (subcategory) {
             data['subcategory'] = subcategory;

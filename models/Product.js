@@ -48,6 +48,14 @@ const pdschmea = new Schema({
     mrp: {
         type: Number
     },
+    moq: {
+        type: Number,
+        default: 1
+    },
+    stock: {
+        type: Number,
+        default: 1
+    },
     images: [String],
     modals: [modalsschema],
     total_moq: {
