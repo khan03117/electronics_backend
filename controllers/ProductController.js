@@ -368,9 +368,9 @@ exports.updateproduct = async (req, res) => {
 
 
         // Check and assign subcategory if present
-        if (subcategory && mongoose.Types.ObjectId.isValid(subcategory)) {
-            product.subcategory = subcategory; // Ensure subcategory is a valid ObjectId
-        }
+
+        product.subcategory = subcategory && mongoose.Types.ObjectId.isValid(subcategory) ? subcategory : '';
+
 
         // Check and assign mrp if present
 
