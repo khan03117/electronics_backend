@@ -10,11 +10,13 @@ const cartSchema = new Schema({
     },
     brand: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Brand'
+        ref: 'Brand',
+        default: null
     },
     modal: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Modal'
+        ref: 'Modal',
+        default: null
     },
     price: {
         type: Number
@@ -28,7 +30,8 @@ const cartSchema = new Schema({
     },
     order: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order'
+        ref: 'Order',
+        default: null
     }
 }, { timestamps: true });
 module.exports = new mongoose.model('Cart', cartSchema);
