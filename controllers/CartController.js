@@ -1,62 +1,114 @@
+const { default: mongoose } = require("mongoose");
 const ApplyPromo = require("../models/ApplyPromo");
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 const PromoCode = require("../models/PromoCode");
 const User = require("../models/User");
 const UserAddress = require("../models/UserAddress");
 const Wishlist = require("../models/Wishlist");
 
 const _create = async (req, res) => {
-    // const errors = validationResult(req);
-    // if (!errors.isEmpty()) {
-    //     return res.json({
-    //         errors: errors.array(),
-    //         success: 0,
-    //         message: "Errors occured",
-    //         data: []
-    //     });
-    // }
-
-    const { price, quantity, brand, modal } = req.body;
-    const isExists = await Cart.findOne({ brand: brand, modal: modal, user: req.user, is_ordered: false });
-    if (isExists) {
-        const udata = {
-            price: price,
-            quantity: quantity
-        }
-        if (quantity == 0) {
-            await Cart.deleteOne({ _id: isExists._id, is_ordered: false }).then(resp => {
-                return res.json({
-                    errors: [],
-                    success: 1,
-                    message: "Cart Deleted successfully",
-                    data: resp
-                });
-            })
-        }
-        if (quantity != 0) {
-            await Cart.updateOne({ _id: isExists._id, is_ordered: false }, udata).then(resp => {
-                return res.json({
-                    errors: [],
-                    success: 1,
-                    message: "Cart entry updated successfully",
-                    data: resp
-                });
-            })
-        }
-
-    } else {
-        const data = { ...req.body, ['user']: req.user, is_ordered: false };
-        await Cart.create(data).then(resp => {
+    try {
+        const { product, price, quantity, brand, modal } = req.body;
+        const cproduct = await Product.findOne({ _id: product });
+        if (!cproduct) {
             return res.json({
-                errors: [],
-                success: 1,
-                message: "Cart entry created successfully",
-                data: resp
+                errors: ['Invalid Product'],
+                success: 0,
+                message: "Errors occured",
+                data: []
             });
+        }
+        const type = cproduct.product_type;
+        if (type != "single") {
+            const isExists = await Cart.findOne({ brand: brand, modal: modal, user: req.user, is_ordered: false });
+            if (isExists) {
+                const udata = {
+                    price: price,
+                    quantity: quantity
+                }
+                if (quantity == 0) {
+                    await Cart.deleteOne({ _id: isExists._id, is_ordered: false }).then(resp => {
+                        return res.json({
+                            errors: [],
+                            success: 1,
+                            message: "Cart Deleted successfully",
+                            data: resp
+                        });
+                    })
+                }
+                if (quantity != 0) {
+                    await Cart.updateOne({ _id: isExists._id, is_ordered: false }, udata).then(resp => {
+                        return res.json({
+                            errors: [],
+                            success: 1,
+                            message: "Cart entry updated successfully",
+                            data: resp
+                        });
+                    })
+                }
+
+            } else {
+                const data = { ...req.body, ['user']: req.user, is_ordered: false };
+                await Cart.create(data).then(resp => {
+                    return res.json({
+                        errors: [],
+                        success: 1,
+                        message: "Cart entry created successfully",
+                        data: resp
+                    });
+                })
+            }
+        }
+        if (type == "single") {
+            const isExists = await Cart.findOne({ product: product, user: req.user, is_ordered: false });
+            if (isExists) {
+                const udata = {
+                    price: price,
+                    quantity: quantity
+                }
+                if (quantity == 0) {
+                    await Cart.deleteOne({ _id: isExists._id, is_ordered: false }).then(resp => {
+                        return res.json({
+                            errors: [],
+                            success: 1,
+                            message: "Cart Deleted successfully",
+                            data: resp
+                        });
+                    })
+                }
+                if (quantity != 0) {
+                    await Cart.updateOne({ _id: isExists._id, is_ordered: false }, udata).then(resp => {
+                        return res.json({
+                            errors: [],
+                            success: 1,
+                            message: "Cart entry updated successfully",
+                            data: resp
+                        });
+                    })
+                }
+
+            } else {
+                const data = { ...req.body, ['user']: req.user, is_ordered: false };
+                await Cart.create(data).then(resp => {
+                    return res.json({
+                        errors: [],
+                        success: 1,
+                        message: "Cart entry created successfully",
+                        data: resp
+                    });
+                })
+            }
+        }
+    } catch (err) {
+        return res.json({
+            data: [],
+            errors: [err.message],
+            message: err.message,
+            success: 0
         })
     }
-
 
 }
 const get_all = async (req, res) => {
@@ -70,13 +122,30 @@ const get_all = async (req, res) => {
     });
 }
 const mycarts = async (req, res) => {
-    const items = await Cart.find({ user: req.user, is_ordered: false }).populate('product', 'title images url').populate('modal', 'title image').populate('brand', 'title image');
-    return res.json({
-        errors: [],
-        success: 1,
-        message: "Cart entry fetched successfully",
-        data: items
-    });
+    try {
+        const ditems = await Cart.find({ user: req.user, is_ordered: false }).populate('product', 'title images url').populate('modal', 'title image').populate('brand', 'title image');
+        return res.json({
+            errors: [],
+            success: 1,
+            message: "Cart entry fetched successfully",
+            data: ditems
+        });
+
+    } catch (err) {
+        return res.json({
+            data: [],
+            errors: [err.message],
+            message: err.message,
+            success: 0
+        })
+    }
+    // const items = await Cart.find({ user: req.user, is_ordered: false }).populate('product', 'title images url').populate('modal', 'title image').populate('brand', 'title image');
+    // return res.json({
+    //     errors: [],
+    //     success: 1,
+    //     message: "Cart entry fetched successfully",
+    //     data: items
+    // });
 }
 
 const mycart = async (req, res) => {
@@ -276,6 +345,17 @@ const cart_by_product = async (req, res) => {
         message: "Cart by product"
     });
 }
+const cart_count = async (req, res) => {
+    const user = req.user;
+    const fdata = { user: user, is_ordered: false };
+    const items = await Cart.countDocuments(fdata);
+    return res.json({
+        data: items,
+        success: 1,
+        errors: [],
+        message: 'Cart items count'
+    })
+}
 
 const apply_promo = async (req, res) => {
     const { promo_code } = req.body;
@@ -335,7 +415,7 @@ const add_to_wishlist = async (req, res) => {
         user: req.user,
         product: product_id,
     }
-   
+
     const isExists = await Wishlist.findOne({ ...filter });
     if (isExists) {
         await Wishlist.deleteOne({ _id: isExists._id });
@@ -370,7 +450,7 @@ const get_wishlist = async (req, res) => {
 }
 const check_wishlist = async (req, res) => {
     const user = req.user;
-    const items = await Wishlist.findOne({ user: user, product : req.params.product_id });
+    const items = await Wishlist.findOne({ user: user, product: req.params.product_id });
     return res.json({
         errors: [],
         success: 1,
@@ -379,5 +459,7 @@ const check_wishlist = async (req, res) => {
     });
 }
 module.exports = {
-    check_wishlist, get_wishlist, add_to_wishlist, mycart, _create, get_all, mycarts, delete_cart, update_cart, checkout, myorders, apply_promo, cart_by_product, myaddresses
+    check_wishlist, get_wishlist, add_to_wishlist,
+    mycart, _create, get_all, mycarts, delete_cart,
+    update_cart, checkout, myorders, apply_promo, cart_by_product, myaddresses, cart_count
 }

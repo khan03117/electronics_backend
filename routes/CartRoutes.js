@@ -13,6 +13,7 @@ router.get('/orders', Auth, controller.myorders);
 router.get('/', Auth, controller.mycarts);
 router.get('/viewall', controller.mycart);
 router.get('/product/:id', Auth, controller.cart_by_product);
+router.get('/cart_count', Auth, controller.cart_count);
 router.delete('/:id', Auth, controller.delete_cart)
 
 module.exports = router;

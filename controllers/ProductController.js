@@ -124,37 +124,57 @@ exports.get_product_by_id = async (req, res) => {
     })
 }
 exports.get_product_by_url = async (req, res) => {
-    const url = req.params.url;
-    const product = await PdModal.findOne({ url: url, deleted_at: null })
-        .populate('category').populate('modals.modal').populate('modals.brand');
-    if (!product) {
-        return res.status(404).json({
+    try {
+        const url = req.params.url;
+        const product = await PdModal.findOne({ url: url, deleted_at: null })
+            .populate('category')
+            .populate('modals.modal') // Populate 'modal' field
+            .populate('modals.brand');
+
+        if (!product) {
+            return res.status(404).json({
+                success: 0,
+                error: ["Product not found."],
+                data: null,
+                message: "Product not found."
+            });
+        }
+
+
+        const currentDate = new Date();
+        const wishlistEntry = await Wishlist.findOne({ user: req.user, product: product._id });
+        const isOffer = await Offer.findOne({
+            product: product._id,
+            is_Active: true,
+            start_at: { $lte: currentDate },
+            end_at: { $gte: currentDate },
+            start_at: { $exists: true },
+            end_at: { $exists: true }
+        });
+
+        return res.json({
+            success: 1,
+            error: [],
+            data: product,
+            is_wishlist: !!wishlistEntry,
+            wishlist: wishlistEntry,
+            offer: isOffer,
+            message: "Product fetched successfully."
+        });
+
+    } catch (err) {
+        return res.status(500).json({
             success: 0,
-            error: ["Product not found."],
+            error: [err.message],
             data: null,
-            message: "Product not found."
+            message: "An error occurred while fetching the product."
         });
     }
-    const currentDate = new Date();
-    const wishlistEntry = await Wishlist.findOne({ user: req.user, product: product._id });
-    const isOffer = await Offer.findOne({
-        product: product._id,
-        is_Active: true,
-        start_at: { $lte: currentDate },  // Offer with start_at less than or equal to the current date
-        end_at: { $gte: currentDate },    // Offer with end_at greater than or equal to the current date
-        start_at: { $exists: true },      // Offer with start_at exists
-        end_at: { $exists: true }
-    });
-    return res.json({
-        success: 1,
-        error: [],
-        data: product,
-        is_wishlist: !!wishlistEntry,
-        'wishlist': wishlistEntry,
-        'offer': isOffer,
-        message: "Product fetched successfully."
-    })
-}
+};
+
+
+
+
 exports.getallproduct = async (req, res) => {
     let { rows, page, category_id, subcategory_id, seller_id, keyword } = req.query;
     rows = rows ? parseInt(rows) : 5; // Default to 5 if not provided
