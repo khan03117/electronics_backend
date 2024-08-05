@@ -348,9 +348,24 @@ exports.updateproduct = async (req, res) => {
         product.url = url;
         product.title = title;
         product.description = description;
-        product.price = price;
-        product.product_type = product_type;
-        product.category = category;
+        if (price) {
+            product.price = price;
+        }
+
+        if (product_type) {
+            product.product_type = product_type;
+            if (product_type == "single" && req.body.stock) {
+                product.stock = req.body.stock
+            }
+            if (product_type == "single" && req.body.moq) {
+                product.moq = req.body.moq
+            }
+        }
+        if (category) {
+            product.category = category;
+        }
+
+
 
         // Check and assign subcategory if present
         if (subcategory && mongoose.Types.ObjectId.isValid(subcategory)) {
