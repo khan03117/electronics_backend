@@ -309,6 +309,27 @@ exports.get_products = async (req, res) => {
         console.log(error)
     }
 }
+exports.change_image_sequance = async (req, res) => {
+    const { images, product } = req.body;
+    const cproduct = await PdModal.findOne({ _id: product });
+    if (cproduct) {
+        cproduct.images = images
+        await cproduct.save();
+        return res.status(200).json({
+            success: 0,
+            error: [],
+            data: null,
+            message: "Sequance changed"
+        });
+    } else {
+        return res.status(200).json({
+            success: 0,
+            error: ['Invalid product'],
+            data: null,
+            message: "An error occurred while fetching the product."
+        });
+    }
+}
 
 exports.search_product = async (req, res) => {
     const { key } = req.params
