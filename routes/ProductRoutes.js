@@ -40,7 +40,7 @@ router.get('/', getallproduct)
 router.put('/:id', store.array('images', 6), updateproduct)
 router.delete('/delete/:id', deleteproduct);
 router.get('/recommended', recommended_products);
-router.post('/search/:key', search_product);
+router.get('/search/:key', search_product);
 
 
 

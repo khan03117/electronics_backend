@@ -310,26 +310,121 @@ exports.get_products = async (req, res) => {
 
 exports.search_product = async (req, res) => {
     const { key } = req.params
-    await PdModal.find({
-        deleted_at: null,
-        $or: [
-            { title: { $regex: key, $options: 'i' } },
-            { url: { $regex: key, $options: 'i' } },
-            { 'category.title': { $regex: key, $options: 'i' } },
-            { 'seller.title': { $regex: key, $options: 'i' } }
-        ]
+    // await PdModal.find({
+    //     deleted_at: null,
+    //     $or: [
+    //         { title: { $regex: key, $options: 'i' } },
+    //         { url: { $regex: key, $options: 'i' } },
+    //         { 'category.title': { $regex: key, $options: 'i' } },
+    //         { 'seller.title': { $regex: key, $options: 'i' } }
+    //     ]
+    // })
+    //     .populate('category')
+    //     .populate('subcategory')
+    //     .populate('seller')
+    //     .then((response) => {
+    //         return res.json({
+    //             success: 1,
+    //             error: [],
+    //             data: response,
+    //             message: "Product fetched successfully."
+    //         })
+    //     })
+    const products = await PdModal.aggregate([
+        {
+            $match: {
+                deleted_at: null
+            }
+        },
+        {
+            $lookup: {
+                from: 'categories',
+                localField: 'category',
+                foreignField: '_id',
+                as: 'categoryDetails'
+            }
+        },
+        {
+            $lookup: {
+                from: 'subcategories',
+                localField: 'subcategory',
+                foreignField: '_id',
+                as: 'subcategoryDetails'
+            }
+        },
+        {
+            $lookup: {
+                from: 'sellers',
+                localField: 'seller',
+                foreignField: '_id',
+                as: 'sellerDetails'
+            }
+        },
+        {
+            $lookup: {
+                from: 'brands',
+                localField: 'brand',
+                foreignField: '_id',
+                as: 'brandDetails'
+            }
+        },
+        {
+            $lookup: {
+                from: 'modals',
+                localField: 'modal',
+                foreignField: '_id',
+                as: 'modalDetails'
+            }
+        },
+        {
+            $unwind: { path: '$categoryDetails', preserveNullAndEmptyArrays: true },
+            $unwind: { path: '$subcategoryDetails', preserveNullAndEmptyArrays: true },
+            $unwind: { path: '$sellerDetails', preserveNullAndEmptyArrays: true },
+            $unwind: { path: '$brandDetails', preserveNullAndEmptyArrays: true },
+            $unwind: { path: '$modalDetails', preserveNullAndEmptyArrays: true },
+        },
+        {
+            $match: {
+                $or: [
+                    { title: { $regex: key, $options: 'i' } },
+                    { url: { $regex: key, $options: 'i' } },
+                    { 'categoryDetails.title': { $regex: key, $options: 'i' } },
+                    { 'subcategoryDetails.title': { $regex: key, $options: 'i' } },
+                    { 'sellerDetails.title': { $regex: key, $options: 'i' } },
+                    { 'brandDetails.title': { $regex: key, $options: 'i' } },
+                    { 'modalDetails.title': { $regex: key, $options: 'i' } }
+                ]
+            }
+        },
+        {
+            $project: {
+                categoryDetails: { title: 1 },
+                subcategoryDetails: { title: 1 },
+                sellerDetails: { title: 1 },
+                brandDetails: { title: 1 },
+                modalDetails: { title: 1 },
+                title: 1,
+                url: 1,
+                product_type: 1,
+                price: 1,
+                mrp: 1,
+                images: 1,
+                total_moq: 1,
+                description: 1,
+                is_hidden: 1,
+                deleted_at: 1,
+                createdAt: 1,
+                updatedAt: 1
+            }
+        }
+    ]);
+
+    return res.json({
+        success: 1,
+        error: [],
+        data: products,
+        message: "Product fetched successfully."
     })
-        .populate('category')
-        .populate('subcategory')
-        .populate('seller')
-        .then((response) => {
-            return res.json({
-                success: 1,
-                error: [],
-                data: response,
-                message: "Product fetched successfully."
-            })
-        })
 }
 
 
