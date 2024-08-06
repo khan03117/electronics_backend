@@ -10,7 +10,17 @@ const bannerSchema = new Schema({
     },
     type: {
         type: String,
-        default: 'Banner'
+        default: 'home'
+    },
+    seller: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Seller",
+        default: null
+    },
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category",
+        default: null
     },
     heading: {
         type: String

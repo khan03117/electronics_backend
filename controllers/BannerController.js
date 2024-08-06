@@ -1,7 +1,15 @@
 const Banner = require("../models/Banner");
+const mongoose = require('mongoose');
 
 const _create = async (req, res) => {
-    const data = { ...req.body };
+    const { url, sub_type, type } = req.body;
+    const data = { url: url, type: type };
+    if (type == "brand") {
+        data['seller'] = sub_type
+    }
+    if (type == "category") {
+        data['category'] = sub_type
+    }
     if (req.file) {
         data['image'] = req.file.path
         const banner = await Banner.create(data);
@@ -53,9 +61,16 @@ const update_banner = async (req, res) => {
     })
 }
 const getall = async (req, res) => {
-    const { type } = req.query;
+    const { type, sub_type } = req.query;
+
     const filter = type ? { type } : {};
-    await Banner.find(filter).sort({ createdAt: 1 }).then((resp) => {
+    if (type && type == "brand" && mongoose.Types.ObjectId.isValid(sub_type)) {
+        filter['seller'] = sub_type
+    }
+    if (type && type == "category" && mongoose.Types.ObjectId.isValid(sub_type)) {
+        filter['category'] = sub_type
+    }
+    await Banner.find(filter).populate('seller').populate('category').sort({ createdAt: 1 }).then((resp) => {
         return res.json({
             errors: [],
             success: 1,

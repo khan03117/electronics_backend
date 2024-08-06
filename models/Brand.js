@@ -3,6 +3,8 @@ const { Schema, default: mongoose } = require("mongoose");
 const brandschema = new Schema({
     url: {
         type: String,
+        unique: true,
+        default: null
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
