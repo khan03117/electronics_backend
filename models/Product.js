@@ -30,11 +30,13 @@ const pdschmea = new Schema({
     },
     subcategory: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "SubCategory"
+        ref: "SubCategory",
+        default : null,
     },
     seller: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Seller"
+        ref: "Seller",
+        default : null,
     },
     product_type: {
         type: String
