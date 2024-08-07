@@ -92,7 +92,7 @@ exports.createproduct = async (req, res) => {
             moq: product_type == "single" ? req.body.moq : 0,
             stock: product_type == "single" ? req.body.stock : 0
         }
-        if (subcategory) {
+        if (subcategory && ObjectId.isValid(subcategory)) {
             data['subcategory'] = subcategory;
         }
         if (seller) {
@@ -448,9 +448,9 @@ exports.updateproduct = async (req, res) => {
 
 
         // Check and assign subcategory if present
-
-        product.subcategory = subcategory && mongoose.Types.ObjectId.isValid(subcategory) ? subcategory : '';
-
+        if (product_type != "single" && ObjectId.isValid(subcategory)) {
+            product.subcategory = subcategory && mongoose.Types.ObjectId.isValid(subcategory) ? subcategory : '';
+        }
 
         // Check and assign mrp if present
 
