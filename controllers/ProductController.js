@@ -398,7 +398,7 @@ exports.search_product = async (req, res) => {
 exports.updateproduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, price, product_type, category, modals, subcategory, seller, mrp } = req.body;
+        const { title, description, price, product_type, category, modals, subcategory, seller, mrp, total_moq } = req.body;
 
         // Ensure url is generated based on the updated title
         const url = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
@@ -432,6 +432,7 @@ exports.updateproduct = async (req, res) => {
             product.price = price;
         }
 
+
         if (product_type) {
             product.product_type = product_type;
             if (product_type == "single" && req.body.stock) {
@@ -444,8 +445,9 @@ exports.updateproduct = async (req, res) => {
         if (category) {
             product.category = category;
         }
-
-
+        if (total_moq) {
+            product.total_moq = total_moq;
+        }
 
         // Check and assign subcategory if present
         if (product_type != "single" && ObjectId.isValid(subcategory)) {
